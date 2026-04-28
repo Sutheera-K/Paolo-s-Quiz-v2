@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz di Verifica — Analisi Sensoriale</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EDF2F8;
+    --parchment: #DDE7F2;
+    --warm-white: #F4F7FB;
+    --ink: #0A1628;
+    --navy: #0D2B4E;
+    --teal: #0B7285;
+    --teal-dark: #085F72;
+    --amber: #C47A20;
+    --amber-light: #DFA030;
+    --sea: #1A9AB5;
+    --sage: #2E7D6C;
+    --sage-light: #3D9B88;
+    --tomato: #C0392B;
+    --advanced: #5B2A8E;
+    --advanced-light: #8A5CC8;
+    --advanced-bg: #F0EBF9;
+    --light-border: #BDD0E5;
+    --correct-bg: #E8F5EE;
+    --wrong-bg: #FBE9E7;
+    --review-bg: #FFF8E1;
+    --review-border: #F9A825;
+    --shadow: 0 2px 16px rgba(10,22,40,0.09);
+    --shadow-lg: 0 8px 40px rgba(10,22,40,0.14);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 15% 15%, rgba(11,114,133,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse at 85% 85%, rgba(196,122,32,0.05) 0%, transparent 60%);
+  }
+
+  header {
+    background: var(--navy);
+    color: #fff;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.28);
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    flex: 1;
+    min-width: 200px;
+  }
+  .header-title span { color: var(--amber-light); }
+  .score-badge {
+    background: var(--teal);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .progress-bar-wrap {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.12);
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sea), var(--amber-light));
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .controls-bar {
+    background: var(--parchment);
+    border-bottom: 1px solid var(--light-border);
+    position: sticky;
+    top: 62px;
+    z-index: 90;
+  }
+  .controls-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .ctrl-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--light-border);
+    background: var(--warm-white);
+    color: var(--navy);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .ctrl-btn:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .ctrl-btn.danger:hover { background: var(--tomato); border-color: var(--tomato); color: #fff; }
+
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  .section-divider {
+    margin: 60px 0 48px;
+    position: relative;
+  }
+  .section-divider-line {
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--advanced), transparent);
+    opacity: 0.4;
+  }
+  .section-divider-banner {
+    background: linear-gradient(135deg, var(--advanced) 0%, #7A3FBF 100%);
+    border-radius: 14px;
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(91,42,142,0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .section-divider-banner::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 150px; height: 150px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+  .section-divider-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; left: 40px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .adv-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    margin-bottom: 12px;
+  }
+  .adv-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .adv-subtitle {
+    font-size: 0.85rem;
+    opacity: 0.82;
+    line-height: 1.5;
+    max-width: 560px;
+  }
+  .adv-stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .adv-stat {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.8rem;
+    opacity: 0.87;
+  }
+  .adv-stat-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 500;
+    opacity: 1;
+  }
+
+  .chapter-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0 28px;
+  }
+  .chapter-header:first-child { margin-top: 0; }
+  .chapter-line { flex: 1; height: 1px; background: var(--light-border); }
+  .chapter-line.adv { background: rgba(91,42,142,0.25); }
+  .chapter-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+  .chapter-label.adv { color: var(--advanced-light); }
+  .chapter-title {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--navy);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .chapter-subtitle {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #999;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .question-card {
+    background: var(--warm-white);
+    border: 1px solid var(--light-border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s, border-color 0.2s;
+    position: relative;
+    scroll-margin-top: 130px;
+  }
+  .question-card.adv-card {
+    border-left: 3px solid rgba(91,42,142,0.2);
+  }
+  .question-card.answered-correct {
+    border-color: var(--sage-light);
+    background: var(--correct-bg);
+  }
+  .question-card.answered-wrong {
+    border-color: #e57373;
+    background: var(--wrong-bg);
+  }
+  .question-card.marked {
+    border-left: 4px solid var(--review-border);
+  }
+  .question-card.hidden { display: none; }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .q-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--teal);
+    background: rgba(11,114,133,0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .q-number.adv {
+    color: var(--advanced-light);
+    background: rgba(91,42,142,0.1);
+  }
+  .q-type-badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #aaa;
+  }
+  .mark-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    opacity: 0.4;
+    transition: opacity 0.2s, transform 0.2s;
+    padding: 2px;
+    line-height: 1;
+  }
+  .mark-btn:hover, .mark-btn.active { opacity: 1; transform: scale(1.2); }
+  .mark-btn.active { color: var(--review-border); }
+
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.0rem;
+    line-height: 1.55;
+    color: var(--navy);
+    margin-bottom: 18px;
+    font-weight: 400;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 9px; }
+
+  .option-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1.5px solid var(--light-border);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: var(--ink);
+    transition: all 0.18s;
+    width: 100%;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--teal);
+    background: rgba(11,114,133,0.06);
+  }
+  .option-btn .opt-letter {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--parchment);
+    border-radius: 5px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: background 0.18s, color 0.18s;
+  }
+  .option-btn.correct { background: #d8f0e8; border-color: var(--sage); color: #1a3c2a; }
+  .option-btn.correct .opt-letter { background: var(--sage); color: #fff; }
+  .option-btn.wrong { background: #fde8e8; border-color: var(--tomato); color: #6b1212; }
+  .option-btn.wrong .opt-letter { background: var(--tomato); color: #fff; }
+  .option-btn:disabled { cursor: default; }
+  .option-btn .opt-icon { margin-left: auto; font-size: 1rem; flex-shrink: 0; }
+
+  .vf-options { display: flex; gap: 12px; }
+  .vf-btn {
+    flex: 1;
+    padding: 13px;
+    border: 1.5px solid var(--light-border);
+    border-radius: 8px;
+    background: var(--bg);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    transition: all 0.18s;
+    text-align: center;
+  }
+  .vf-btn:hover:not(:disabled) {
+    border-color: var(--teal);
+    background: rgba(11,114,133,0.06);
+  }
+  .vf-btn.correct { background: #d8f0e8; border-color: var(--sage); color: #1a3c2a; }
+  .vf-btn.wrong { background: #fde8e8; border-color: var(--tomato); color: #6b1212; }
+  .vf-btn:disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 14px;
+    padding: 13px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    display: none;
+    animation: fadeSlide 0.3s ease;
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .feedback.show { display: block; }
+  .feedback.correct-fb {
+    background: rgba(46,125,108,0.1);
+    border: 1px solid rgba(46,125,108,0.28);
+    color: #1a3c34;
+  }
+  .feedback.wrong-fb {
+    background: rgba(192,57,43,0.08);
+    border: 1px solid rgba(192,57,43,0.25);
+    color: #5c1a10;
+  }
+  .feedback strong { font-weight: 600; display: block; margin-bottom: 5px; }
+  .feedback .correct-answer {
+    font-weight: 600;
+    color: var(--sage);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  #results-panel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,22,40,0.72);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  #results-panel.show { display: flex; }
+  .results-box {
+    background: var(--warm-white);
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 40px 36px;
+    box-shadow: var(--shadow-lg);
+    animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .results-emoji { font-size: 3rem; text-align: center; margin-bottom: 10px; }
+  .results-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    text-align: center;
+    color: var(--navy);
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .results-score-big {
+    font-family: 'DM Mono', monospace;
+    font-size: 3.5rem;
+    font-weight: 500;
+    text-align: center;
+    color: var(--tomato);
+    line-height: 1;
+    margin: 16px 0;
+  }
+  .results-score-big.good { color: var(--sage); }
+  .results-score-big.ok { color: var(--amber); }
+  .results-sub { text-align: center; color: #888; font-size: 0.85rem; margin-bottom: 24px; }
+  .results-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .breakdown-item {
+    background: var(--parchment);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .breakdown-item .bi-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 500;
+    display: block;
+  }
+  .breakdown-item .bi-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.06em; }
+  .breakdown-item.green .bi-num { color: var(--sage); }
+  .breakdown-item.red .bi-num { color: var(--tomato); }
+  .breakdown-item.yellow .bi-num { color: var(--amber); }
+  .results-section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #bbb;
+    margin: 16px 0 8px;
+    padding-left: 4px;
+  }
+  .results-section-label.adv { color: var(--advanced-light); }
+  .results-chapter {
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    background: var(--bg);
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+  }
+  .results-chapter.adv-chapter {
+    background: rgba(91,42,142,0.05);
+    border-left: 3px solid rgba(91,42,142,0.2);
+  }
+  .results-chapter span { font-weight: 600; }
+  .ch-score { font-family: 'DM Mono', monospace; }
+  .results-actions { display: flex; gap: 12px; margin-top: 20px; }
+  .res-btn {
+    flex: 1;
+    padding: 13px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .res-btn.primary { background: var(--navy); color: #fff; }
+  .res-btn.primary:hover { background: var(--teal-dark); }
+  .res-btn.secondary { background: var(--parchment); color: var(--navy); }
+  .res-btn.secondary:hover { background: var(--light-border); }
+
+  #toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--navy);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    z-index: 300;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  .answered-stamp {
+    position: absolute;
+    top: 18px; right: 56px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+  .answered-stamp.ok { color: var(--sage); }
+  .answered-stamp.ko { color: var(--tomato); }
+
+  @media (max-width: 600px) {
+    .question-card { padding: 18px 16px; }
+    .results-breakdown { grid-template-columns: 1fr 1fr; }
+    .header-inner { gap: 10px; }
+    main { padding: 20px 14px 60px; }
+    .adv-title { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-title">Quiz <span>Analisi Sensoriale</span></div>
+    <div class="score-badge" id="score-badge">0 / 0</div>
+    <button class="ctrl-btn" onclick="showResults()" style="background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600;">📊 Risultati</button>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
+</header>
+
+<div class="controls-bar">
+  <div class="controls-inner">
+    <button class="ctrl-btn" onclick="filterQuestions('all')">📋 Tutte</button>
+    <button class="ctrl-btn" onclick="filterQuestions('unanswered')">⏳ Da rispondere</button>
+    <button class="ctrl-btn" onclick="filterQuestions('marked')">🔖 Segnate</button>
+    <button class="ctrl-btn" onclick="filterQuestions('wrong')">❌ Sbagliate</button>
+    <button class="ctrl-btn danger" onclick="confirmReset()">🔄 Ricomincia</button>
+  </div>
+</div>
+
+<main id="quiz-main"></main>
+
+<div id="results-panel">
+  <div class="results-box" id="results-box"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const chapters = [
+  {
+    title: "Analisi Sensoriale",
+    subtitle: "Capitolo 1 — Organi di senso, sapori, sistema somestesico",
+    qs: [
+      {n:1,type:"mc",q:"Qual è la differenza fondamentale tra degustazione e analisi sensoriale?",opts:["Sono sinonimi: cambia solo il termine più tecnico.","La degustazione è individuale, mentre l'analisi sensoriale si svolge in gruppo per rendere la valutazione più oggettiva.","La degustazione richiede strumenti di laboratorio, l'analisi sensoriale no.","L'analisi sensoriale riguarda solo i prodotti, la degustazione anche i servizi."],correct:1,exp:"Le slide distinguono esplicitamente: degustazione = individuale; analisi sensoriale = di gruppo (panel), per rendere la valutazione più oggettiva e affidabile."},
+      {n:2,type:"mc",q:"Quale tra le seguenti definizioni descrive correttamente la «sensazione»?",opts:["L'interpretazione cognitiva di uno stimolo, influenzata dall'esperienza.","La risposta fisiologica immediata del sistema sensoriale a uno stimolo.","Qualsiasi elemento fisico o chimico che attiva un organo di senso.","L'insieme dei descrittori utilizzati per qualificare un alimento."],correct:1,exp:"Le slide definiscono: stimolo = elemento fisico/chimico che attiva un organo di senso; sensazione = risposta fisiologica immediata del sistema sensoriale; percezione = interpretazione cognitiva, influenzata da esperienza e contesto."},
+      {n:3,type:"vf",q:"La percezione è influenzata dall'esperienza e dal contesto, mentre la sensazione è una risposta fisiologica immediata.",correct:true,exp:"È esattamente la differenza concettuale tra sensazione (fisiologia immediata) e percezione (cognizione interpretativa con memoria/contesto)."},
+      {n:4,type:"mc",q:"Cos'è un panel nell'analisi sensoriale?",opts:["Uno strumento elettronico per la misura oggettiva degli aromi.","Un gruppo di assaggiatori (addestrati o meno) usato per rendere la valutazione più oggettiva e affidabile.","La scheda standardizzata di valutazione di un prodotto.","Un singolo degustatore esperto certificato."],correct:1,exp:"Le slide definiscono il panel come «un gruppo di assaggiatori (addestrati o meno) utilizzato per rendere la valutazione più oggettiva e affidabile»."},
+      {n:5,type:"mc",q:"Lo spettro di lunghezza d'onda visibile per l'occhio umano è approssimativamente:",opts:["100 - 380 nanometri.","380 - 750 nanometri.","750 - 1500 nanometri.","16 - 20.000 Hertz."],correct:1,exp:"Le slide riportano 380 - 750 nm come spettro di lunghezze d'onda dell'apparato visivo (16-20.000 Hz è invece il range uditivo)."},
+      {n:6,type:"mc",q:"Sulla retina, dove vengono focalizzate le immagini in modo più nitido?",opts:["Sul cristallino.","Sull'umor vitreo.","Sulla fovea.","Sulla cornea."],correct:2,exp:"Le onde luminose vengono focalizzate da cornea e cristallino, attraverso l'umor vitreo, e giungono alla retina in un punto preciso detto fovea."},
+      {n:7,type:"mc",q:"I bastoncelli, sulla retina:",opts:["Sono responsabili della visione diurna a colori.","Assicurano la visione notturna e contengono una grande quantità di pigmento, tale da poter essere risvegliati dall'energia di un singolo fotone.","Esistono in tre tipi diversi a seconda della lunghezza d'onda assorbita.","Si trovano principalmente nella cornea."],correct:1,exp:"I bastoncelli assicurano la visione notturna; grazie all'enorme quantità di pigmento sono risvegliabili dall'energia di un singolo fotone. I tre tipi (C, M, L) sono invece dei coni."},
+      {n:8,type:"mc",q:"Quanti tipi di coni esistono e cosa li distingue?",opts:["Due tipi, distinti per posizione sulla retina.","Tre tipi (C, M, L), ognuno con un pigmento visivo diverso, capace di assorbire una particolare lunghezza d'onda.","Quattro tipi, uno per ogni colore primario.","Un solo tipo, ma con sensibilità variabile."],correct:1,exp:"Esistono 3 tipi di coni (C, M, L), ognuno con un pigmento visivo diverso, ognuno in grado di assorbire una particolare lunghezza d'onda."},
+      {n:9,type:"vf",q:"Si parla di daltonismo quando uno dei pigmenti dei coni è alterato.",correct:true,exp:"Le slide indicano espressamente: «se un pigmento è alterato si è daltonici»."},
+      {n:10,type:"mc",q:"La frequenza uditiva percepibile dall'orecchio umano è compresa tra:",opts:["380 e 750 Hz.","16 e 20.000 Hz.","100 e 10.000 Hz.","1 e 2.000 Hz."],correct:1,exp:"Le slide riportano la frequenza uditiva 16 - 20.000 Hz."},
+      {n:11,type:"mc",q:"Qual è la differenza tra via olfattiva ortonasale e retronasale?",opts:["L'ortonasale percepisce il dolce, la retronasale l'amaro.","L'ortonasale è la percezione diretta degli odori (attraverso il naso); la retronasale percepisce gli aromi durante la masticazione (dalla bocca).","L'ortonasale funziona solo con cibi caldi, la retronasale con quelli freddi.","Sono sinonimi."],correct:1,exp:"L'ortonasale è la percezione diretta degli odori dal naso; la retronasale è la percezione degli aromi durante la masticazione (dalla bocca verso l'epitelio olfattivo)."},
+      {n:12,type:"mc",q:"Perché si dice che l'olfatto sia il senso più direttamente collegato a memoria ed emozioni?",opts:["Perché ha la più alta soglia di sensibilità tra tutti i sensi.","Perché i recettori olfattivi sono fisicamente posizionati nel cervello.","Perché i segnali raggiungono il bulbo olfattivo che li interpreta integrandoli con memoria ed esperienza, e quindi influenza in modo decisivo la percezione globale di un alimento.","Perché l'olfatto è l'unico senso a non essere mediato da fibre nervose."],correct:2,exp:"I segnali olfattivi raggiungono il bulbo olfattivo, che li interpreta integrandoli con memoria ed esperienza: la percezione è chimica, neurologica e culturale."},
+      {n:13,type:"mc",q:"Quali sono i 4 parametri valutati in analisi sensoriale per l'olfatto?",opts:["Tempo di latenza, soglia, intensità, qualità.","Intensità, qualità, finezza/complessità, persistenza.","Acidità, dolcezza, amarezza, sapidità.","Colore, profumo, gusto, retrogusto."],correct:1,exp:"I 4 parametri olfattivi sono: intensità, qualità, finezza/complessità, persistenza."},
+      {n:14,type:"vf",q:"La percezione olfattiva è chimica, neurologica e culturale.",correct:true,exp:"Le slide affermano espressamente che la percezione olfattiva è «chimica, neurologica e culturale»."},
+      {n:15,type:"mc",q:"Le papille gustative sono distribuite sulla lingua. Quali sono fungiformi e cosa percepiscono prevalentemente?",opts:["Hanno forma a fungo, contengono un solo bottone gustativo, sono localizzate nei due terzi anteriori della lingua e percepiscono prevalentemente il salato/sapido.","Sono molto grandi e situate nella parte posteriore della lingua, percepiscono l'amaro.","Sono filamenti conici disposti in file parallele, prive di funzione gustativa diretta.","Contengono molti bottoni gustativi e percepiscono il dolce."],correct:0,exp:"Le papille fungiformi: forma a fungo, un solo bottone gustativo, due terzi anteriori della lingua, percezione del salato/sapido."},
+      {n:16,type:"mc",q:"Le papille circumvallate sono:",opts:["Le più piccole della lingua, presenti sui due terzi anteriori.","Molto grandi, posizionate nella parte posteriore della lingua e associate alla percezione dell'amaro.","Filamenti conici sulla parte dorsale della lingua.","A forma di fungo, prevalenti nei bambini."],correct:1,exp:"Le circumvallate sono molto grandi, posteriori sulla lingua, associate alla percezione dell'amaro."},
+      {n:17,type:"mc",q:"Le papille fogliate, posizionate nella parte posteriore-laterale della lingua, percepiscono prevalentemente:",opts:["Il dolce.","Il salato.","L'acido.","L'amaro."],correct:2,exp:"Le papille fogliate sono nella parte posteriore-laterale e percepiscono prevalentemente l'acido."},
+      {n:18,type:"mc",q:"Cosa sono i bottoni gustativi (o gemme gustative)?",opts:["Strutture interne alle papille, terminanti con un poro e formate da cellule recettrici, dove avviene la trasduzione dello stimolo gustativo.","Le terminazioni nervose dei nervi facciale, glossofaringeo e vago.","Filamenti conici disposti in file parallele.","I sensori del freddo e del caldo a livello linguale."],correct:0,exp:"I bottoni (o gemme) gustativi sono interni alle papille, terminano con un poro e contengono cellule recettrici dove avviene la trasduzione dello stimolo gustativo."},
+      {n:19,type:"mc",q:"Quali sono i tre nervi coinvolti nella percezione del gusto?",opts:["Trigemino, facciale, ipoglosso.","Facciale, glossofaringeo, vago.","Olfattivo, ottico, vestibolococleare.","Vago, accessorio, frenico."],correct:1,exp:"I tre nervi del gusto sono: facciale, glossofaringeo e vago."},
+      {n:20,type:"mc",q:"Quale tra i seguenti NON è classificato come responsabile del sapore dolce nelle slide?",opts:["Etanolo.","Glicerolo.","Acido picrico.","Proteine."],correct:2,exp:"L'acido picrico è classificato dalle slide tra i composti che danno sapore amaro, non dolce. Etanolo, glicerolo, chetoni e proteine sono invece classificati come dolci."},
+      {n:21,type:"mc",q:"Che tipo di proteina è coinvolta nella trasduzione del sapore dolce?",opts:["Una proteina di canale per il potassio.","Una proteina G accoppiata a recettori specifici sulle membrane delle cellule gustative.","L'anidrasi carbonica.","Una proteina di trasporto del sodio."],correct:1,exp:"Per il dolce vengono attivate molecole recettrici specializzate sulla membrana delle cellule gustative, accoppiate a una proteina G."},
+      {n:22,type:"mc",q:"Quanto è il tempo di latenza per la percezione del dolce?",opts:["Inferiore a un secondo.","Circa un secondo.","Poco superiore a un secondo.","Circa due secondi."],correct:1,exp:"Le slide indicano per il dolce un tempo di latenza di circa un secondo."},
+      {n:23,type:"mc",q:"Confrontando saccarina e saccarosio, le slide affermano che:",opts:["L'intensità del dolce della saccarina cresce di più rispetto a incrementi pari di saccarosio.","L'intensità del dolce della saccarina cresce meno rispetto agli stessi incrementi di saccarosio.","Saccarina e saccarosio sono perfettamente equivalenti.","Solo il saccarosio è classificato come dolce."],correct:1,exp:"Esempio specifico delle slide: l'intensità del dolce dovuta a incrementi di saccarina cresce meno rispetto a incrementi pari di saccarosio."},
+      {n:24,type:"mc",q:"Come varia la percezione del dolce in funzione della temperatura?",opts:["Decresce linearmente da 17 a 42°C.","Da 17°C a 37°C aumenta con curva dolce, per poi salire in modo più consistente tra 37 e 42°C.","È costante a tutte le temperature.","Cresce in modo lineare consistente da 17 a 42°C."],correct:1,exp:"Da 17 a 37°C il dolce aumenta con curva morbida; tra 37 e 42°C cresce più consistentemente."},
+      {n:25,type:"mc",q:"Il dolce, nell'interazione con altri gusti:",opts:["Contrasta l'amaro e l'acido.","Accentua l'amaro e l'acido.","Non interagisce con altri gusti.","Viene depresso dal salato."],correct:0,exp:"Il dolce contrasta l'amaro e l'acido; con il salato produce una sensazione definita «salata»."},
+      {n:26,type:"mc",q:"Il sapore acido è dato da:",opts:["Composti inorganici come cloruri di sodio, potassio, magnesio, litio, ammonio.","Tutte le molecole in grado di liberare ioni idrogeno in quantità significativa.","Alcaloidi e polifenoli.","Recettori specifici come il CD-36."],correct:1,exp:"L'acido è dato da tutte le molecole capaci di liberare ioni idrogeno in quantità significativa."},
+      {n:27,type:"mc",q:"Meccanismo di trasduzione dell'acido:",opts:["Gli ioni idrogeno rendono inattivo il canale per il potassio, impedendone la liberazione.","Gli ioni sodio penetrano nella cellula gustativa depolarizzandola.","La trasduzione è mediata da una proteina G.","Gli ioni idrogeno legano il recettore CD-36."],correct:0,exp:"Gli ioni idrogeno liberati dai composti acidi rendono inattivo il canale per il potassio, impedendo la liberazione degli ioni K."},
+      {n:28,type:"mc",q:"Le sostanze responsabili del sapore salato sono:",opts:["Tutte le molecole capaci di liberare ioni idrogeno.","Composti inorganici: cloruri di sodio, potassio, magnesio, litio, ammonio.","Alcaloidi e polifenoli.","Etanolo, glicerolo, chetoni."],correct:1,exp:"Il salato è dovuto a composti inorganici: cloruri di sodio, potassio, magnesio, litio, ammonio."},
+      {n:29,type:"mc",q:"Meccanismo di trasduzione del salato:",opts:["Gli ioni idrogeno bloccano il canale per il potassio.","Gli ioni sodio penetrano nella cellula gustativa depolarizzandola parzialmente; questa variazione provoca la genesi di un neurotrasmettitore che porta l'informazione al cervello.","Una proteina G accoppiata al recettore.","Diretta attivazione del nervo vago."],correct:1,exp:"Gli ioni sodio penetrano nella cellula gustativa, depolarizzandola parzialmente; questa variazione provoca la genesi di un neurotrasmettitore che porta l'informazione al cervello."},
+      {n:30,type:"mc",q:"Come varia la percezione del salato con la temperatura?",opts:["Decresce in modo consistente.","Da 17 a 42°C ha una crescita lineare consistente.","Aumenta solo sopra i 37°C.","Resta costante."],correct:1,exp:"Il salato cresce in modo lineare consistente da 17 a 42°C."},
+      {n:31,type:"mc",q:"Il salato, nell'interazione con altri gusti:",opts:["Contrasta l'amaro e accentua il dolce.","Accentua l'amaro e l'acido e contrasta il dolce, dando origine a una sensazione definita «sapida».","Non interagisce con gli altri sapori.","Accentua solo il dolce."],correct:1,exp:"Il salato accentua amaro e acido, contrasta il dolce; produce una sensazione definita «sapida»."},
+      {n:32,type:"vf",q:"Il tempo di latenza dell'amaro è di circa 2 secondi, più lungo rispetto agli altri sapori.",correct:true,exp:"Per l'amaro le slide indicano un tempo di latenza di 2 secondi (acido ~1 s, salato <1 s, dolce ~1 s)."},
+      {n:33,type:"mc",q:"Tra i composti che danno sapore amaro le slide indicano:",opts:["Etanolo, glicerolo, chetoni e proteine.","Cloruri di sodio e potassio.","Alcaloidi, alcoli superiori, polifenoli, aldeidi, chetoni, alcuni glucosidi, acido picrico, destromannosio, rame.","Solo la capsaicina e la piperina."],correct:2,exp:"Le slide elencano per l'amaro: alcaloidi, alcoli superiori, polifenoli, aldeidi, chetoni, alcuni glucosidi, acido picrico, destromannosio, rame."},
+      {n:34,type:"mc",q:"L'amaro:",opts:["È depresso dal dolce e potenziato dall'acido e dal salato.","È accentuato dal dolce.","Non interagisce con il salato.","È contrastato dall'acido."],correct:0,exp:"L'amaro è depresso dal dolce e potenziato dall'acido e dal salato."},
+      {n:35,type:"mc",q:"La variazione dell'amaro con la temperatura mostra:",opts:["Crescita costante e lineare da 17 a 42°C.","Decrescita consistente da 17 a 37°C, poi tendenza al rialzo tra 37 e 42°C.","Costanza a tutte le temperature.","Decrescita progressiva fino a 42°C."],correct:1,exp:"Tra 17 e 37°C l'amaro decresce in modo consistente; tra 37 e 42°C tende al rialzo."},
+      {n:36,type:"mc",q:"Il recettore specifico per il sapore «grasso» indicato nelle slide è:",opts:["La proteina G.","Il CD-36, presente nelle papille circumvallate.","Il canale per il potassio.","L'anidrasi carbonica."],correct:1,exp:"Il recettore specifico per il sapore «grasso» è il CD-36, presente nelle papille circumvallate."},
+      {n:37,type:"mc",q:"Il sistema somestesico FISICO comprende:",opts:["Solo le sensazioni dolorose mediate dai nocicettori.","Le informazioni ricavate attraverso il tatto: proprietà tattili (meccanoreccettori), sensibilità termica (bulbi terminali), sensibilità meccanica e al dolore (nocicettori).","Le sensazioni mediate da chemorecettori.","Solo le proprietà geometriche degli oggetti."],correct:1,exp:"Il sistema somestesico fisico include tutto ciò che si percepisce attraverso il tatto: meccanorecettori (tatto), bulbi terminali (termico), nocicettori (dolore)."},
+      {n:38,type:"mc",q:"Le proprietà tattili meccaniche includono:",opts:["Dimensione, forma, tessitura, rugosità.","Durezza, coesione, viscosità, elasticità e aderenza.","Temperatura, pressione, dolore.","Solo viscosità ed elasticità."],correct:1,exp:"Le proprietà tattili meccaniche sono: durezza, coesione, viscosità, elasticità, aderenza."},
+      {n:39,type:"mc",q:"Le proprietà tattili geometriche includono:",opts:["Durezza e coesione.","Dimensione, forma, tessitura, rugosità.","Viscosità ed elasticità.","Aderenza ed elasticità."],correct:1,exp:"Le proprietà tattili geometriche sono: dimensione, forma, tessitura, rugosità."},
+      {n:40,type:"mc",q:"I sensori del freddo e del caldo, secondo le slide, sono rispettivamente:",opts:["I bulbi terminali di Krause (freddo) e i terminali di Ruffini (caldo).","I nocicettori (freddo) e i meccanorecettori (caldo).","Le papille circumvallate (freddo) e fungiformi (caldo).","I bottoni gustativi sia per freddo che per caldo."],correct:0,exp:"Sensori del freddo: bulbi terminali di Krause; sensori del caldo: terminali di Ruffini."},
+      {n:41,type:"mc",q:"Il sistema somestesico CHIMICO si basa su:",opts:["Meccanorecettori che rispondono alla pressione.","Bulbi terminali di Krause.","Chemorecettori che rispondono a stimoli dovuti agli agenti chimici.","Fotorecettori specifici per la cavità orale."],correct:2,exp:"Il sistema somestesico chimico opera tramite chemorecettori, che rispondono a stimoli dovuti agli agenti chimici."},
+      {n:42,type:"mc",q:"La sensazione astringente è dovuta a:",opts:["Liquidi con elevata gradazione alcolica.","Combinazione delle proteine dell'epitelio orale con sostanze (anidrasi) che provocano la precipitazione delle proteine lubrificanti della saliva, generando la tipica sensazione di bocca asciutta.","Anidride carbonica trasformata in acido carbonico.","Capsaicina del peperoncino."],correct:1,exp:"L'astringenza si avverte a livello della mucosa orale per la combinazione delle proteine epiteliali e la precipitazione delle proteine lubrificanti della saliva, dando la tipica sensazione di bocca asciutta."},
+      {n:43,type:"mc",q:"La sensazione pungente è dovuta a:",opts:["Capsaicina.","Anidride carbonica che viene trasformata in acido carbonico.","Solfato di ferro.","Combinazione di proteine epiteliali."],correct:1,exp:"Il pungente è dovuto all'anidride carbonica trasformata in acido carbonico (es. nelle bevande gassate)."},
+      {n:44,type:"mc",q:"La sensazione bruciante/rinfrescante è causata da:",opts:["Liquidi con elevata gradazione alcolica.","Capsaicina del peperoncino.","Anidride carbonica.","Solfato di ferro."],correct:0,exp:"La sensazione bruciante/rinfrescante è causata da liquidi ad elevata gradazione alcolica."},
+      {n:45,type:"mc",q:"Il piccante è dovuto a quali molecole, e quali recettori vengono attivati?",opts:["Anidride carbonica, attiva i meccanorecettori.","Capsaicina (peperoncino), piperina (pepe), isosolfocianato di allile (senape); attiva i nocicettori.","Etanolo, attiva i bulbi di Krause.","Solfato di ferro, attiva la proteina G."],correct:1,exp:"Il piccante è dovuto a capsaicina (peperoncino), piperina (pepe), isosolfocianato di allile (senape); attiva i nocicettori."},
+      {n:46,type:"vf",q:"Il sapore metallico è dovuto al solfato di ferro.",correct:true,exp:"Le slide attribuiscono il sapore metallico al solfato di ferro."},
+      {n:47,type:"mc",q:"Secondo le slide, il sapore «grasso» è stato riconosciuto ufficialmente nel:",opts:["2001.","2009.","2012.","2023."],correct:2,exp:"Le slide indicano l'anno 2012 per il riconoscimento del sapore «grasso»."},
+      {n:48,type:"mc",q:"Il sapore «ammonio di sale» è stato riconosciuto nel:",opts:["2009.","2012.","2020.","2023."],correct:3,exp:"Le slide indicano l'anno 2023 per l'«ammonio di sale» (liquirizia salata)."},
+      {n:49,type:"mc",q:"Il Prisma di Hennig (1951) propone quante famiglie aromatiche?",opts:["4 famiglie.","5 famiglie.","6 famiglie.","8 famiglie."],correct:2,exp:"Il Prisma di Hennig (1951) propone 6 famiglie aromatiche."},
+      {n:50,type:"mc",q:"Quale tra le seguenti famiglie aromatiche NON appartiene al Prisma di Hennig?",opts:["Fruttato.","Empireumatico.","Floreale.","Lattico."],correct:3,exp:"Le 6 famiglie del Prisma sono: fruttato, balsamico (resinoso vegetale), speziato, empireumatico, floreale, putrido. «Lattico» non rientra."},
+      {n:51,type:"mc",q:"Cosa significa «empireumatico»?",opts:["Aromi floreali e fruttati.","Aromi che derivano dalla cottura (dal greco «pirus», cottura).","Aromi resinosi e vegetali.","Aromi di putrefazione."],correct:1,exp:"Empireumatico, dal greco «pirus» (cottura), indica gli aromi che derivano dalla cottura: tostato, bruciato, affumicato."},
+    ]
+  },
+  {
+    title: "Parmigiano Reggiano",
+    subtitle: "Capitolo 2 — Produzione, stagionatura, selezione",
+    qs: [
+      {n:52,type:"mc",q:"Quali sono le province emiliano-romagnole autorizzate alla produzione di Parmigiano Reggiano?",opts:["Tutte le province dell'Emilia-Romagna.","Parma, Reggio Emilia, Modena e Bologna (limitatamente alla zona a sinistra del fiume Reno).","Solo Parma e Reggio Emilia.","Parma, Reggio Emilia, Modena e Mantova."],correct:1,exp:"Province autorizzate in Emilia-Romagna: Parma, Reggio Emilia, Modena e Bologna a sinistra del fiume Reno."},
+      {n:53,type:"mc",q:"La provincia lombarda autorizzata è:",opts:["Mantova, ma solo a destra del fiume Po.","Cremona.","Pavia.","Mantova, su tutto il territorio provinciale."],correct:0,exp:"L'unica provincia lombarda autorizzata è Mantova, ma soltanto a destra del fiume Po."},
+      {n:54,type:"vf",q:"Per il Parmigiano Reggiano si utilizza esclusivamente latte crudo, non pastorizzato.",correct:true,exp:"Il Parmigiano Reggiano si produce esclusivamente con latte crudo, non pastorizzato."},
+      {n:55,type:"mc",q:"Quale procedura distingue il latte della sera da quello del mattino?",opts:["Vengono entrambi pastorizzati.","Quello della sera viene lasciato affiorare per perdere parte della panna (leggermente scremato); quello del mattino viene aggiunto intero, non scremato.","Si usa solo il latte del mattino.","Vengono entrambi scremati interamente."],correct:1,exp:"Latte della sera: lasciato affiorare per perdere parte della panna (leggermente scremato). Latte del mattino: aggiunto intero, non scremato."},
+      {n:56,type:"mc",q:"Il latte viene trasferito in:",opts:["Vasche di acciaio inox.","Caldaie di rame a forma di campana rovesciata: il rame serve a creare competizione batterica.","Caldaie di alluminio.","Otri di terracotta."],correct:1,exp:"Le caldaie sono di rame, a forma di campana rovesciata: il rame serve a creare competizione batterica."},
+      {n:57,type:"mc",q:"A che temperatura viene riscaldato il latte prima dell'innesto?",opts:["25–28°C.","30–32°C.","36–37°C.","55–56°C."],correct:2,exp:"Il latte viene riscaldato a 36-37°C prima dell'aggiunta del siero-innesto."},
+      {n:58,type:"mc",q:"Cos'è il siero-innesto naturale?",opts:["Un prodotto industriale di batteri liofilizzati.","Un fermento ricco di batteri lattici selezionati dal caseificio stesso, ottenuto come scarto di produzione del giorno precedente.","Caglio derivato da abomaso di vitello.","Una soluzione salina concentrata."],correct:1,exp:"Il siero-innesto è un fermento ricco di batteri lattici selezionati dal caseificio, ottenuto come scarto di produzione del giorno prima."},
+      {n:59,type:"mc",q:"Quale caglio si utilizza e in che dosaggio?",opts:["Caglio vegetale, 5 g ogni 100 litri.","Caglio di vitello (dal 4° stomaco, abomaso), 2 g ogni 100 litri.","Caglio microbico, 10 g ogni 100 litri.","Caglio di agnello, 1 g ogni 100 litri."],correct:1,exp:"Caglio di vitello (dal 4° stomaco, l'abomaso); 2 g ogni 100 litri di latte."},
+      {n:60,type:"mc",q:"Quanto dura la coagulazione?",opts:["2–3 minuti.","10–12 minuti.","30–45 minuti.","1 ora."],correct:1,exp:"La coagulazione avviene in 10-12 minuti, formando una massa gelatinosa."},
+      {n:61,type:"mc",q:"Lo strumento usato per la rottura della cagliata si chiama spino. Fino a che dimensione si rompe la cagliata?",opts:["Dimensioni di una nocciola.","Dimensioni di chicchi di riso.","Dimensioni di un grano di pepe.","Dimensioni di un pisello."],correct:1,exp:"Si rompe la cagliata fino a ottenere granuli delle dimensioni di chicchi di riso."},
+      {n:62,type:"vf",q:"Più la rottura della cagliata è fine, maggiore è l'espulsione del siero, fondamentale per ottenere un formaggio a pasta dura.",correct:true,exp:"Più la rottura è fine, maggiore l'espulsione del siero: passaggio fondamentale per ottenere un formaggio a pasta dura."},
+      {n:63,type:"mc",q:"A che temperatura viene cotta la cagliata?",opts:["36–37°C.","45–47°C.","55–56°C.","70–80°C."],correct:2,exp:"La cottura della cagliata avviene a 55-56°C; i granuli si compattano sul fondo formando la massa caseosa."},
+      {n:64,type:"mc",q:"Da una caldaia si ottengono:",opts:["Una sola forma.","Due forme gemelle.","Tre forme.","Un numero variabile, da una a quattro."],correct:1,exp:"Da ciascuna caldaia si ottengono due forme gemelle, sollevate con teli di lino."},
+      {n:65,type:"mc",q:"La fascera che viene applicata negli stampi imprime:",opts:["Solo la scritta «Parmigiano Reggiano».","La scritta «Parmigiano Reggiano», la matricola del caseificio, il mese e l'anno di produzione.","Il marchio a fuoco del consorzio.","La data di stagionatura prevista."],correct:1,exp:"La fascera imprime: scritta «Parmigiano Reggiano», matricola del caseificio, mese e anno di produzione."},
+      {n:66,type:"mc",q:"Quanto tempo le forme rimangono in salamoia, e con quale concentrazione?",opts:["8–10 giorni in salamoia satura al 1,3%.","18–20 giorni in salamoia satura al 1,3%.","30 giorni in salamoia satura al 5%.","5–7 giorni in salamoia satura al 0,5%."],correct:1,exp:"Salamoia satura 1,3% per 18-20 giorni."},
+      {n:67,type:"mc",q:"La salamoia contribuisce a:",opts:["Aumentare il contenuto d'acqua del formaggio.","Disidratare la forma, formare la crosta e sviluppare gli aromi.","Sostituire la stagionatura.","Favorire la coagulazione."],correct:1,exp:"Il sale penetra lentamente, contribuendo a disidratazione, formazione della crosta e sviluppo aromatico."},
+      {n:68,type:"mc",q:"La stagionatura minima del Parmigiano Reggiano è di:",opts:["6 mesi.","9 mesi.","12 mesi.","24 mesi."],correct:2,exp:"Stagionatura minima del Parmigiano Reggiano: 12 mesi."},
+      {n:69,type:"mc",q:"Quali strumenti vengono utilizzati per i controlli periodici durante la stagionatura?",opts:["Sonde elettroniche e spettrofotometri.","Martelletto, ago e valutazioni visive.","Solo l'olfatto e la valutazione visiva.","Termocamera e analizzatori chimici."],correct:1,exp:"I controlli si effettuano con martelletto, ago e valutazioni visive."},
+      {n:70,type:"vf",q:"A 12 mesi il Consorzio effettua una selezione: le forme idonee ricevono il marchio a fuoco, quelle con difetti il marchio «mezzano» o vengono declassate.",correct:true,exp:"A 12 mesi il Consorzio effettua la selezione: forme idonee → marchio a fuoco; forme con difetti → marchio «mezzano» o declassamento."},
+      {n:71,type:"mc",q:"Negli assaggi in classe, il riferimento «Parmigiano 12 mesi» era prodotto da latte di:",opts:["Vacca rossa.","Frisona.","Bruna alpina.","Vacca bianca."],correct:1,exp:"L'assaggio del Parmigiano 12 mesi visto in classe era ottenuto da latte di frisona."},
+      {n:72,type:"mc",q:"Tra gli assaggi, quanti formaggi NON sono Parmigiano Reggiano?",opts:["1 (solo il provolone valpadano).","2 (provolone valpadano, fontina).","3 (provolone valpadano, grana padano, fontina).","4."],correct:2,exp:"Sono 3 i formaggi che NON sono Parmigiano: provolone valpadano, grana padano 9 mesi, fontina 8 mesi."},
+    ]
+  },
+  {
+    title: "Aceto Balsamico",
+    subtitle: "Capitolo 3 — DOP, IGP, processo di affinamento",
+    qs: [
+      {n:73,type:"mc",q:"Quali sono le tre tipologie principali di aceto balsamico?",opts:["Aceto Balsamico di Modena DOP, Aceto Balsamico di Reggio Emilia DOP, Aceto Balsamico Tradizionale IGP.","Aceto Balsamico di Modena IGP, Aceto Balsamico Tradizionale di Modena DOP, Aceto Balsamico Tradizionale di Reggio Emilia DOP.","Aceto bianco IGP, Aceto rosso DOP, Aceto agrodolce.","Aceto Tradizionale, Aceto Affinato, Aceto Stravecchio."],correct:1,exp:"Le tre tipologie principali: Aceto Balsamico di Modena IGP, Aceto Balsamico Tradizionale di Modena DOP, Aceto Balsamico Tradizionale di Reggio Emilia DOP."},
+      {n:74,type:"mc",q:"In che anno il DOP e l'IGP hanno ottenuto il riconoscimento?",opts:["DOP nel 2009 e IGP nel 2000.","DOP nel 2000 e IGP nel 2009.","DOP nel 1965 e IGP nel 1985.","Entrambi nel 2009."],correct:1,exp:"Riconoscimenti: DOP nel 2000 (più antico, disciplinare rigoroso); IGP nel 2009 (risposta alla domanda commerciale)."},
+      {n:75,type:"vf",q:"Prima del 2009 esistevano due consorzi distinti (produttori artigianali e produttori commerciali), che si sono uniti dal 2009 in poi.",correct:true,exp:"Prima del 2009 esistevano due consorzi distinti (artigianali e commerciali); dal 2009 si sono uniti."},
+      {n:76,type:"mc",q:"Qual è la materia prima fondamentale dell'Aceto Balsamico Tradizionale di Modena DOP?",opts:["Aceto di vino invecchiato.","Mosto fermentato.","Saba (mosto cotto concentrato).","Aceto madre con almeno 25 anni di invecchiamento."],correct:2,exp:"Materia prima fondamentale: la saba (mosto cotto concentrato)."},
+      {n:77,type:"mc",q:"La bottiglia obbligatoria del Tradizionale di Modena DOP è:",opts:["Una bottiglia da 250 ml di forma libera.","Una bottiglia da 100 ml disegnata da Giugiaro, di proprietà del consorzio.","Una bottiglia da 500 ml standardizzata UE.","Una bottiglia da 100 ml disegnata da Pininfarina."],correct:1,exp:"Bottiglia obbligatoria: 100 ml, disegnata da Giugiaro, di proprietà del consorzio."},
+      {n:78,type:"mc",q:"Quali sono i parametri obbligatori per il Tradizionale di Modena DOP?",opts:["Acidità acetica ≥ 6%, densità 1,06 a 20°C, colore nero brillante.","Acidità acetica ≥ 4,5%, densità 1,24 a 20°C, colore nero brillante.","Acidità acetica ≥ 5%, densità 1,15 a 20°C, colore ambrato.","Acidità acetica ≥ 4%, densità 1,30 a 20°C."],correct:1,exp:"Parametri: acidità acetica ≥ 4,5%; densità 1,24 a 20°C; colore nero brillante."},
+      {n:79,type:"mc",q:"Il prezzo indicativo dell'Aceto Balsamico Tradizionale di Modena DOP è:",opts:["50–100 € al litro.","200–400 € al litro.","900–1200 € al litro.","5000 € al litro."],correct:2,exp:"Prezzo indicativo del Tradizionale di Modena DOP: 900-1200 € al litro."},
+      {n:80,type:"mc",q:"La produzione annua di Aceto Tradizionale di Modena è di circa:",opts:["50–60 mila bottiglie.","160 mila bottiglie.","320–330 mila bottiglie.","1 milione di bottiglie."],correct:2,exp:"Modena: 320-330 mila bottiglie all'anno."},
+      {n:81,type:"mc",q:"La produzione annua di Aceto Tradizionale di Reggio Emilia è di circa:",opts:["50 mila bottiglie.","160 mila bottiglie.","320–330 mila bottiglie.","500 mila bottiglie."],correct:1,exp:"Reggio Emilia: circa 160 mila bottiglie all'anno (produzione minore di Modena)."},
+      {n:82,type:"mc",q:"Il Consorzio di Tutela dell'Aceto Balsamico Tradizionale è stato fondato nel:",opts:["1605.","1965, con finalità commerciali.","2000, con il riconoscimento DOP.","2009, con la fusione dei due consorzi."],correct:1,exp:"Consorzio di Tutela: fondato nel 1965, con finalità commerciali."},
+      {n:83,type:"mc",q:"La Consorteria è:",opts:["Il consorzio commerciale fondato nel 1965.","Un'associazione volontaria di famiglie produttrici, attiva dagli anni '50.","Un'autorità governativa di controllo.","Una marca commerciale."],correct:1,exp:"La Consorteria è un'associazione volontaria di famiglie produttrici, attiva dagli anni '50, distinta dal Consorzio commerciale del 1965."},
+      {n:84,type:"mc",q:"Quali sono le tre uve principali per la produzione di aceto balsamico?",opts:["Sangiovese, Trebbiano romagnolo, Albana.","Trebbiano di Spagna, Sangiovese, Lambrusco (detto «brusco»).","Lambrusco, Pinot grigio, Sauvignon.","Trebbiano, Cabernet, Merlot."],correct:1,exp:"Le tre uve principali: Trebbiano di Spagna, Sangiovese, Lambrusco (detto «brusco»)."},
+      {n:85,type:"mc",q:"Quante varietà di uva sono complessivamente ammesse?",opts:["Tre.","Cinque.","Sette.","Dieci."],correct:2,exp:"Le varietà ammesse sono in totale sette."},
+      {n:86,type:"vf",q:"Le uve usate per il balsamico devono essere ricche di zuccheri e avere una rapida tendenza all'acidificazione.",correct:true,exp:"Caratteristiche comuni delle uve da balsamico: ricchezza in zuccheri e rapida tendenza all'acidificazione."},
+      {n:87,type:"mc",q:"Nella produzione della saba, perché si esegue la pigiatura «soffice»?",opts:["Per ridurre il volume di lavorazione.","Per non rompere vinaccioli e raspi, evitando astringenza.","Per accelerare la fermentazione.","Per separare meglio mosto e bucce."],correct:1,exp:"Pigiatura soffice per non rompere vinaccioli e raspi, evitando astringenza nel mosto."},
+      {n:88,type:"mc",q:"La cottura del mosto avviene:",opts:["In calderoni di rame a 80–85°C per circa una giornata.","In tini di legno a 100°C per qualche ora.","In autoclave a 120°C per 30 minuti.","In caldaie di acciaio a 60°C per 24 ore."],correct:0,exp:"Cottura del mosto in calderoni di rame a 80-85°C per circa una giornata."},
+      {n:89,type:"mc",q:"La cottura viene interrotta quando:",opts:["Il volume si è ridotto del 20–30%.","Il volume si è ridotto del 50–60%, ottenendo la saba.","Si è raggiunta l'ebollizione completa.","Il volume si è ridotto del 90%."],correct:1,exp:"Si interrompe la cottura quando il volume si è ridotto del 50-60%, ottenendo la saba."},
+      {n:90,type:"mc",q:"Dove avviene la maturazione della saba prima dell'acidificazione?",opts:["In cantine sotterranee.","Nei sottotetti, in tini (botti) di vari legni come ciliegio o castagno; il tino viene chiamato «badessa».","In silos di acciaio inox.","In vasche di terracotta interrate."],correct:1,exp:"La saba viene trasferita nei sottotetti in tini (botti) di vari legni (ciliegio, castagno, ecc.); il tino si chiama «badessa»."},
+      {n:91,type:"mc",q:"Quando si effettua il prelievo dalla badessa?",opts:["Quando la dolcezza aumenta.","Dopo esattamente 6 mesi.","Quando l'acidità aumenta e la dolcezza diminuisce.","Quando il liquido si congela in superficie."],correct:2,exp:"Il prelievo dalla badessa avviene quando l'acidità aumenta e la dolcezza diminuisce."},
+      {n:92,type:"mc",q:"Le due qualità del Tradizionale, riconoscibili dalla capsula, sono:",opts:["Affinato (capsula bordeaux/bordo) e Stravecchio (capsula oro).","Affinato (capsula oro) e Stravecchio (capsula nera).","Giovane (capsula bianca) e Riserva (capsula rossa).","Standard (capsula verde) e Premium (capsula argento)."],correct:0,exp:"Affinato = capsula bordeaux/bordo; Stravecchio = capsula oro."},
+      {n:93,type:"mc",q:"La batteria di botti è composta da:",opts:["Sempre 5 botti.","Da 3 a 7 botti di dimensioni decrescenti.","Almeno 10 botti.","Solo 2 botti, una grande e una piccola."],correct:1,exp:"La batteria è composta da 3 a 7 botti di dimensioni decrescenti."},
+      {n:94,type:"mc",q:"Le botti della batteria devono essere:",opts:["Nuove e mai usate, per non contaminare.","Vecchie, spesso provenienti dal vino.","Esclusivamente in rovere nuovo.","Sigillate ermeticamente."],correct:1,exp:"Le botti devono essere vecchie, spesso provenienti dal vino."},
+      {n:95,type:"mc",q:"Riempimento iniziale ed evaporazione annuale delle botti:",opts:["Riempite al 100%, evaporazione del 5%.","Riempite al 75% con mosto cotto, evaporazione naturale del 10% all'anno.","Riempite al 50%, evaporazione del 20%.","Riempite al 90%, evaporazione del 1%."],correct:1,exp:"Riempimento iniziale: 75% con mosto cotto. Dopo un anno: evaporazione naturale del 10%."},
+      {n:96,type:"mc",q:"Lo strumento usato per «travasare» tra le botti si chiama:",opts:["Mestolo.","Spino.","Ladro.","Imbuto consortile."],correct:2,exp:"Lo strumento si chiama «ladro»: serve a rincalzare le botti."},
+      {n:97,type:"mc",q:"Come funziona il sistema di rincalzo nella batteria?",opts:["Tutte le botti vengono ricolmate con mosto cotto nuovo.","Si colma la botte più piccola con la successiva (più grande), e così via, mentre l'ultima viene ricolmata con mosto cotto nuovo.","Si parte dalla più grande e si scende.","Si svuotano completamente e si ricolmano una volta all'anno."],correct:1,exp:"Si colma la botte più piccola con la successiva (più grande), e così via; l'ultima viene ricolmata con mosto cotto nuovo."},
+      {n:98,type:"mc",q:"Qual è la durata MINIMA del ciclo per il Tradizionale?",opts:["6 anni.","10 anni.","12 anni.","25 anni."],correct:2,exp:"Durata minima del ciclo: 12 anni per il Tradizionale."},
+      {n:99,type:"mc",q:"Quale tra i seguenti legni NON è elencato tra quelli usati per la batteria?",opts:["Rovere, castagno, ciliegio.","Ginepro, gelso, frassino.","Acacia (robinia).","Pino marittimo."],correct:3,exp:"I legni elencati: rovere, castagno, ciliegio, ginepro, gelso, frassino, acacia (robinia). Il pino marittimo NON è elencato."},
+      {n:100,type:"mc",q:"Il profilo sensoriale del Tradizionale presenta tipicamente note di:",opts:["Erbe aromatiche e agrumi.","Saba, caramello, prugna, fichi secchi, liquirizia, miele.","Cuoio, tabacco, cioccolato fondente.","Vaniglia, mandorla, latte."],correct:1,exp:"Profilo sensoriale tipico: saba, caramello, prugna, fichi secchi, liquirizia, miele."},
+      {n:101,type:"vf",q:"Storicamente l'aceto balsamico era utilizzato anche come dolcificante, prima della diffusione dello zucchero successiva alla scoperta dell'America.",correct:true,exp:"Storicamente il balsamico era usato come dolcificante, prima della diffusione dello zucchero conseguente alla scoperta dell'America."},
+      {n:102,type:"mc",q:"Il «mezzo balsamico», o aceto balsamico IGP di Modena, è caratterizzato da:",opts:["Bottiglia da 100 ml, acidità 4,5%, almeno 12 anni di affinamento.","Bottiglia da 250 ml, colore nero, acidità acetica 6%, una sola fase di lavorazione a Modena, due livelli qualitativi (60 giorni e 3 anni).","Bottiglia da 500 ml, acidità 7%, esclusivamente da uve Trebbiano.","Bottiglia da 100 ml, acidità 5%, due livelli qualitativi (5 e 10 anni)."],correct:1,exp:"Mezzo balsamico = aceto balsamico IGP di Modena: bottiglia 250 ml, colore nero, acidità acetica 6%, una sola fase di lavorazione a Modena, due livelli qualitativi (60 giorni e 3 anni)."},
+      {n:103,type:"mc",q:"Nella ricetta dell'IGP, le proporzioni minime sono:",opts:["50% mosto cotto/concentrato + 50% aceto di vino.","Almeno 20% mosto (cotto o concentrato) + almeno 10% aceto di vino + almeno 10% aceto di vino madre (10 anni di invecchiamento).","80% aceto di vino + 20% saba.","100% mosto cotto."],correct:1,exp:"Ricetta IGP: almeno 20% mosto (cotto o concentrato) + almeno 10% aceto di vino + almeno 10% aceto di vino madre con 10 anni di invecchiamento."},
+      {n:104,type:"mc",q:"Se nell'IGP si utilizza mosto concentrato, è ammesso anche:",opts:["Il 5% di zucchero.","Il 2% di caramello.","Il 10% di vino aggiunto.","Nessun additivo."],correct:1,exp:"Se si usa mosto concentrato (lavorato industrialmente per il colore), il disciplinare IGP ammette fino al 2% di caramello."},
+      {n:105,type:"mc",q:"La densità minima dell'IGP a 20°C è:",opts:["1,06.","1,15.","1,24.","1,30."],correct:0,exp:"La densità minima dell'IGP a 20°C è 1,06 (ricordare: per il Tradizionale è 1,24)."},
+      {n:106,type:"mc",q:"Tra gli assaggi visti in classe, quale era prodotto con 80% mosto cotto + 20% aceto di vino madre, invecchiato 25 anni in barrique di 15 anni in legno di acacia?",opts:["Il «Ruffiano».","L'extravecchio De Nigris.","Il famoso campione n.9 (80% mosto + 20% aceto madre, 25 anni in barrique di 15 anni di acacia).","L'aceto bianco di Modena."],correct:2,exp:"Tra gli assaggi visti in classe il campione corrispondente è quello con 80% mosto cotto + 20% aceto di vino madre invecchiata 25 anni in barrique di 15 anni in legno di acacia."},
+      {n:107,type:"mc",q:"Il «Ruffiano», tra gli assaggi, è un aceto di vino invecchiato:",opts:["5 anni in botti di acacia.","12 anni in botti di 25 anni; mosto d'uva 60% + aceto di vino bianco 40% (uva passita); legno di acacia.","25 anni in botti di rovere; 100% mosto cotto.","6 anni; 80% aceto di vino + 20% mosto cotto."],correct:1,exp:"Il «Ruffiano» = aceto di vino invecchiato 12 anni in botti di 25 anni; mosto d'uva 60% + aceto di vino bianco 40% (uva passita); legno di acacia."},
+    ]
+  },
+  {
+    title: "Olio Extravergine di Oliva",
+    subtitle: "Capitolo 4 — Produzione, qualità, analisi sensoriale",
+    qs: [
+      {n:108,type:"mc",q:"L'olio extravergine di oliva è un prodotto ottenuto:",opts:["Esclusivamente dal frutto dell'olivo (olive) tramite processi meccanici.","Dalle foglie e dai frutti dell'olivo, anche con processi chimici.","Anche con solventi, purché di origine alimentare.","Esclusivamente con processi termici a freddo."],correct:0,exp:"L'EVO si ottiene esclusivamente dal frutto dell'olivo (olive) tramite processi meccanici."},
+      {n:109,type:"mc",q:"Quante cultivar di olivo si stimano in Italia?",opts:["Circa 50.","Circa 200.","Circa 450.","Oltre 1.000."],correct:2,exp:"L'Italia ha circa 450 cultivar, espressione di una grande biodiversità."},
+      {n:110,type:"vf",q:"Il maggior competitor dell'Italia nella produzione di olio è la Spagna, che attua un'agricoltura più intensiva.",correct:true,exp:"Il maggior competitor è la Spagna, che attua un'agricoltura più intensiva."},
+      {n:111,type:"mc",q:"Quale tra le seguenti NON è una delle principali cultivar italiane elencate?",opts:["Nocellara.","Frantoio.","Picual.","Moraiolo."],correct:2,exp:"Le principali cultivar italiane elencate sono: Nocellara, Frantoio, Leccino, Moraiolo. La Picual è una cultivar prevalentemente spagnola."},
+      {n:112,type:"mc",q:"Secondo la normativa italiana 2003, per essere definito EVO l'olio deve:",opts:["Avere acidità oleica ≤ 2% e lavorazione entro 7 giorni.","Essere ottenuto solo con procedimenti meccanici, senza sostanze chimiche, con spremitura a freddo (< 27°C), lavorazione entro 48 ore dalla raccolta, acidità oleica ≤ 0,8%.","Avere spremitura a 35°C e acidità ≤ 1,5%.","Provenire esclusivamente da olive italiane."],correct:1,exp:"Per essere EVO: solo procedimenti meccanici, no chimici; spremitura a freddo (< 27°C); lavorazione entro 48 ore dalla raccolta; acidità oleica ≤ 0,8%."},
+      {n:113,type:"mc",q:"Per ottenere oli di alta qualità, i produttori puntano su un'acidità delle olive di:",opts:["0,8%.","0,2–0,3%, perché favorisce maggiore qualità e più polifenoli.","1,5–2%.","Sopra il 2%, per più aroma."],correct:1,exp:"I produttori di alta qualità raccolgono olive con acidità 0,2-0,3%: maggiore qualità, più polifenoli."},
+      {n:114,type:"mc",q:"La raccolta delle olive avviene durante l'invaiatura, ovvero:",opts:["La fase di fioritura.","Il cambio di colore del frutto.","Il momento della massima maturazione.","La caduta naturale dell'oliva."],correct:1,exp:"L'invaiatura è il cambio di colore del frutto: indica il momento ottimale per la raccolta."},
+      {n:115,type:"mc",q:"Il periodo di raccolta al Sud Italia è:",opts:["Fine agosto – novembre.","Ottobre – dicembre.","Fino a marzo.","Maggio – luglio."],correct:0,exp:"Sud Italia: fine agosto - novembre. Centro: ottobre - dicembre. Nord: fino a marzo."},
+      {n:116,type:"mc",q:"La «produzione alternata» (resa biennale) significa che:",opts:["Si cambia cultivar ogni due anni.","Un anno l'olivo produce di più, l'anno seguente meno, perché il frutto richiede molta energia alla pianta.","Si raccoglie solo ogni due anni.","La fioritura avviene a cicli di due anni."],correct:1,exp:"Produzione alternata: un anno l'olivo produce di più, l'anno seguente meno, perché il frutto richiede molta energia alla pianta."},
+      {n:117,type:"mc",q:"La raccolta meccanica intensiva tipica del modello spagnolo prevede:",opts:["Vibratori a cinghia su olivi tradizionali.","Rastrelli e raccolta a mano.","Scavallatrici, su olivi modificati geneticamente per essere di piccole dimensioni.","Reti automatizzate per la raccolta a terra."],correct:2,exp:"Modello spagnolo: scavallatrici, su olivi modificati geneticamente per essere di piccole dimensioni."},
+      {n:118,type:"mc",q:"La resa media in olio dal frutto è di circa:",opts:["5%.","12%.","25%.","40%."],correct:1,exp:"Resa media: circa 12% di olio dal frutto."},
+      {n:119,type:"mc",q:"Perché l'acqua di vegetazione va separata immediatamente dal grasso?",opts:["Per ridurre il volume.","Per evitare odori sgradevoli all'olio.","Per aumentare l'acidità.","Perché altrimenti gelifica."],correct:1,exp:"L'acqua di vegetazione va separata immediatamente dal grasso per evitare odori sgradevoli all'olio."},
+      {n:120,type:"mc",q:"La sansa è:",opts:["La parte liquida residua della spremitura.","La parte solida/fibrosa, residuo della spremitura.","Il primo olio ottenuto.","Un sottoprodotto della raccolta delle olive."],correct:1,exp:"La sansa è la parte solida/fibrosa, residuo della spremitura."},
+      {n:121,type:"mc",q:"Dalla 5ª spremitura della sansa si ottiene:",opts:["Olio EVO.","Olio vergine di oliva.","Olio d'oliva.","Olio lampante (non commestibile, oggi usato per motori e trattori)."],correct:3,exp:"Dalla 5ª spremitura si ottiene l'olio lampante: non commestibile, oggi usato per motori e trattori."},
+      {n:122,type:"vf",q:"Nelle spremiture 4ª e 5ª si utilizzano dei solventi per estrarre i grassi.",correct:true,exp:"Nelle 4ª e 5ª spremiture si utilizzano dei solventi per estrarre i grassi."},
+      {n:123,type:"mc",q:"L'olio «vergine di oliva» ha acidità compresa tra:",opts:["0% e 0,2%.","0,8% e 2%.","2% e 5%.","Sopra il 5%."],correct:1,exp:"Olio vergine di oliva: acidità tra 0,8% e 2%."},
+      {n:124,type:"mc",q:"L'«olio d'oliva» ha acidità di circa:",opts:["1%.","0,3%.","2%.","0,8%."],correct:0,exp:"Olio d'oliva: circa 1% di acido oleico."},
+      {n:125,type:"mc",q:"Le tipologie di frantoio elencate sono:",opts:["Privato, consortile, comunale.","Pubblico, privato, governativo.","Tradizionale, moderno, sperimentale.","Familiare, industriale, cooperativo."],correct:0,exp:"Tipologie di frantoio: privato (azienda), consortile (consorzio), comunale (affitto comune)."},
+      {n:126,type:"mc",q:"Il ciclo produttivo «discontinuo» del frantoio dura circa:",opts:["30–35 minuti.","1 ora.","3–4 ore.","24 ore."],correct:2,exp:"Ciclo discontinuo: macchine separate, trasporto manuale, durata 3-4 ore."},
+      {n:127,type:"mc",q:"Quale ciclo è più rapido?",opts:["Discontinuo, perché ottimizzato.","Continuo (impianti collegati): 30–35 min.","Sono equivalenti.","La pressione tradizionale."],correct:1,exp:"Ciclo continuo: impianti collegati, durata 30-35 minuti."},
+      {n:128,type:"mc",q:"La frangitura nel frantoio si effettua con:",opts:["Solo con martelli rotanti.","Molazze (due pietre in granito poroso), dischi in acciaio o martelli.","Solo con torchio idraulico.","Tramite vibrazione ultrasonica."],correct:1,exp:"Frangitura: molazze (due pietre in granito poroso), dischi in acciaio o martelli."},
+      {n:129,type:"mc",q:"La gramolatura serve a:",opts:["Eliminare l'acqua dal frutto.","Lacerare le molecole di grasso e migliorare l'estrazione, mediante mescolamento lento della pasta a temperatura controllata (< 27°C).","Riscaldare la pasta sopra i 40°C.","Filtrare l'olio dai residui solidi."],correct:1,exp:"La gramolatura è un mescolamento lento della pasta a temperatura controllata (< 27°C); serve a lacerare le molecole di grasso e migliorare l'estrazione."},
+      {n:130,type:"mc",q:"Tra i metodi di estrazione dell'olio, la centrifugazione:",opts:["È il metodo più antico, con resa al 30%.","È il metodo più usato; produce separazione rapida dall'acqua e ha un'alta resa (15-20%).","Si effettua tramite torchio.","Funziona solo con olive parzialmente disidratate."],correct:1,exp:"Centrifugazione: il metodo più usato; separazione rapida dall'acqua, alta resa (15-20%)."},
+      {n:131,type:"mc",q:"L'estrazione tradizionale per pressione:",opts:["È il metodo più moderno.","Avviene mediante torchio (resa 20-30%) ed è il metodo più antico; in questa fase si ottiene il «mosto d'olio».","Ha la resa più alta in assoluto.","Utilizza grandi setacci con maglie fini."],correct:1,exp:"Pressione (torchio): metodo più antico; resa 20-30%; in questa fase si ottiene il «mosto d'olio»."},
+      {n:132,type:"mc",q:"La percolatrice è:",opts:["Un metodo antico, oggi vietato.","Un metodo moderno, meno diffuso, con grande setaccio a maglie fini, dove grosse spatole permettono di ottenere la parte grassa con resa 8-10%.","Sinonimo di torchio.","Una variante della centrifuga."],correct:1,exp:"La percolatrice è un metodo moderno (meno diffuso): grande setaccio a maglie fini, grosse spatole permettono di ottenere la parte grassa con resa 8-10%."},
+      {n:133,type:"mc",q:"La filtrazione dell'olio avviene con:",opts:["Filtri di carta.","Filtri di cellulosa, separato attraverso tubi.","Setacci metallici.","Membrane semipermeabili."],correct:1,exp:"La filtrazione avviene con filtri di cellulosa, separato attraverso tubi."},
+      {n:134,type:"mc",q:"L'olio NON filtrato è:",opts:["Più stabile e meno aromatico.","Torbido, più aromatico ma meno stabile.","Privo di polifenoli.","Solo di seconda spremitura."],correct:1,exp:"Olio non filtrato: torbido, più aromatico ma meno stabile."},
+      {n:135,type:"mc",q:"La durata legale di conservazione dell'olio EVO è:",opts:["6–12 mesi.","18–24 mesi.","36 mesi.","5 anni."],correct:1,exp:"Durata legale di conservazione: 18-24 mesi."},
+      {n:136,type:"mc",q:"La qualità ottimale dell'olio si ha entro:",opts:["6–8 mesi.","12 mesi.","18–24 mesi.","36 mesi."],correct:0,exp:"Qualità ottimale: entro 6-8 mesi."},
+      {n:137,type:"mc",q:"L'olio teme:",opts:["Solo l'acqua.","Luce, aria, calore (e assorbe odori).","Solo le basse temperature.","Solo i contenitori metallici."],correct:1,exp:"L'olio teme luce, aria e calore e assorbe odori dall'ambiente."},
+      {n:138,type:"mc",q:"L'olio definito «stanco» è caratterizzato da:",opts:["Eccesso di amaro.","Perdita degli aromi.","Pungenza eccessiva.","Colore troppo intenso."],correct:1,exp:"Olio «stanco» = perdita degli aromi (per invecchiamento o cattiva conservazione)."},
+      {n:139,type:"mc",q:"Le caratteristiche organolettiche positive dell'olio EVO sono:",opts:["Rancido, muffa, riscaldo.","Fruttato, amaro, piccante (pungente, dovuto ai polifenoli).","Floreale, mielato, dolce.","Solo il fruttato."],correct:1,exp:"Caratteristiche positive: fruttato, amaro, piccante (la pungenza deriva dai polifenoli)."},
+      {n:140,type:"mc",q:"Un olio EVO che presenta difetti per legge viene:",opts:["Eliminato dal mercato.","Declassato a olio vergine di oliva.","Venduto come olio lampante.","Utilizzato per fritture industriali."],correct:1,exp:"Per legge un EVO con difetti viene declassato a olio vergine di oliva."},
+      {n:141,type:"vf",q:"Le certificazioni DOP e IGP sono più diffuse per l'olio che per le olive da tavola, perché queste ultime si consumano meno.",correct:true,exp:"Le certificazioni DOP/IGP sono più diffuse per l'olio che per le olive da tavola, poiché queste ultime si consumano meno."},
+      {n:142,type:"mc",q:"Il principale parassita dell'olivo è:",opts:["La cocciniglia.","La mosca dell'olivo.","L'oziorrinco.","Il tarlo del legno."],correct:1,exp:"Il principale parassita dell'olivo è la mosca dell'olivo."},
+      {n:143,type:"mc",q:"Tra gli oli EVO assaggiati in classe, quali aree erano rappresentate?",opts:["Lago di Garda, Liguria, Toscana, Umbria (Terre Francescane), Puglia (Terre di Bari), Sicilia.","Solo Toscana, Lazio, Sicilia.","Solo Sud Italia.","Liguria, Sardegna, Calabria."],correct:0,exp:"Aree degli oli EVO assaggiati: Lago di Garda, Liguria, Toscana, Umbria (Terre Francescane di Perugia), Puglia (Terre di Bari), Sicilia."},
+    ]
+  },
+
+  // ADVANCED
+  {
+    title: "Sensoriale: Analisi e Applicazione",
+    subtitle: "Capitolo 5 (Avanzato) — Meccanismi fisiologici e interazioni",
+    advanced: true,
+    sectionBreak: true,
+    qs: [
+      {n:144,type:"mc",q:"Un produttore di marmellata di limoni nota che, abbassando lo zucchero, il prodotto risulta «troppo acido» ai consumatori. Sulla base dei meccanismi di interazione gustativa, quale spiegazione è più solida?",opts:["L'acido viene amplificato dalle basse temperature, indipendentemente dallo zucchero.","Il dolce contrasta l'acido: riducendo lo zucchero si toglie il «contropeso» percettivo, e l'acidità (oggettivamente invariata) appare più intensa.","L'acido viene depresso dal salato, che manca nelle marmellate.","Il pH della marmellata aumenta automaticamente quando si riduce lo zucchero."],correct:1,exp:"Le slide affermano esplicitamente che il dolce «contrasta l'amaro e l'acido». Riducendo lo zucchero non cambia l'acidità chimica del prodotto, ma viene a mancare il «contropeso» percettivo che la modulava."},
+      {n:145,type:"mc",q:"In un panel di degustazione, due assaggiatori valutano lo stesso campione di formaggio e danno giudizi molto diversi sul «descrittore tostato». Quale spiegazione è più coerente con la teoria delle slide?",opts:["Sono incompetenti: dovrebbero entrambi dare lo stesso punteggio.","La sensazione (risposta fisiologica) può essere simile, ma la percezione (interpretazione cognitiva) è influenzata da memoria, esperienza e cultura: per questo si lavora in panel, per smussare la variabilità individuale.","I bottoni gustativi del primo non funzionano correttamente.","È un errore di campionamento."],correct:1,exp:"Le slide differenziano sensazione (risposta fisiologica immediata) e percezione (interpretazione cognitiva influenzata da memoria, esperienza, contesto). I panel servono proprio a oggettivare la valutazione attraverso più assaggiatori."},
+      {n:146,type:"vf",q:"Se due cibi vengono assaggiati a temperature diverse (uno a 20°C, l'altro a 40°C) e contengono la stessa quantità di sale, dolcezza e acido, le percezioni di sapidità saranno comunque diverse, perché la temperatura modifica selettivamente l'intensità percepita di ciascun gusto.",correct:true,exp:"Le slide indicano andamenti diversi con la temperatura per ogni sapore: il dolce cresce con curva morbida 17-37°C poi più ripida 37-42°C; il salato cresce linearmente; l'amaro decresce 17-37°C poi rimonta. Queste differenze rendono inevitabile che la stessa composizione, percepita a temperature diverse, dia profili sapidi diversi."},
+      {n:147,type:"mc",q:"Confronta i tempi di latenza dei sapori (salato <1 s, acido ~1 s, dolce ~1 s, amaro ~2 s). Quale deduzione tecnico-pratica è la più sensata?",opts:["L'amaro è il sapore meno percepibile, e quindi il meno importante.","In una degustazione, l'ordine percettivo «cronologico» tende a essere: prima il salato, poi acido e dolce, infine l'amaro che emerge in coda; questo ordine ha senso evolutivo, perché l'amaro è il segnale di pericolo (molte sostanze tossiche hanno gusto amaro) e richiede integrazione cognitiva più lenta.","L'amaro non viene rilevato.","Tutti i sapori si percepiscono simultaneamente."],correct:1,exp:"Le latenze (salato <1s, acido ~1s, dolce ~1s, amaro ~2s) implicano una sequenza temporale di percezione. L'amaro più lento ha senso evolutivo: è il sapore associato a sostanze potenzialmente tossiche."},
+      {n:148,type:"mc",q:"Bevi una bevanda gassata e percepisci una sensazione pungente. Subito dopo, lo stesso liquido senza anidride carbonica non dà la stessa sensazione. Da cosa dipende?",opts:["Dall'aumento di acidità del liquido.","Dall'anidride carbonica che, a contatto con l'umidità della mucosa, viene trasformata in acido carbonico, generando la tipica sensazione pungente.","Dalla temperatura più bassa della bevanda gassata.","Dalla concentrazione di zuccheri."],correct:1,exp:"Le slide indicano espressamente che la sensazione pungente è dovuta all'anidride carbonica trasformata in acido carbonico a contatto con la mucosa orale; senza CO₂, l'effetto svanisce."},
+      {n:149,type:"mc",q:"Un sommelier descrive un vino come «astringente». Quale meccanismo fisiologico si sta verificando in bocca?",opts:["I nocicettori sono attivati dalla capsaicina presente nel vino.","I tannini interagiscono con le proteine epiteliali del cavo orale e fanno precipitare le proteine lubrificanti della saliva, generando la tipica mancanza di lubrificazione («bocca asciutta»).","L'anidride carbonica si trasforma in acido carbonico.","Gli ioni sodio penetrano nelle cellule gustative."],correct:1,exp:"L'astringenza è descritta come combinazione delle proteine epiteliali con sostanze (tannini) che precipitano le proteine lubrificanti della saliva, generando la mancanza di lubrificazione: «bocca asciutta»."},
+      {n:150,type:"mc",q:"Un cuoco vuole esaltare la percezione del salato in un piatto senza aumentare il sodio. Considerando le interazioni tra sapori, quale strategia è coerente con le slide?",opts:["Aumentare il dolce, perché il dolce con il salato dà una sensazione «salata» più intensa.","Aggiungere amaro per accentuare il salato.","Aumentare l'acido, perché contrasta il salato.","Eliminare ogni altro gusto per «pulire» il palato."],correct:0,exp:"Le slide affermano: «con il salato [il dolce] produce una sensazione definita salata». L'aggiunta di una piccola quantità di dolce a un piatto salato amplifica la percezione di sapidità senza aumentare il sodio."},
+      {n:151,type:"mc",q:"Quale tra queste affermazioni descrive meglio il meccanismo di trasduzione che differenzia amaro e dolce DA acido e salato?",opts:["Sono tutti mediati da proteine G.","Amaro e dolce: trasduzione mediata da proteine G; acido: ioni H⁺ inattivano il canale del K⁺; salato: ioni Na⁺ depolarizzano la cellula. La differenza è strutturale: i primi due sono recettori G-accoppiati, gli altri due agiscono direttamente sui canali ionici.","Tutti agiscono sui canali ionici.","L'amaro funziona solo a temperature alte."],correct:1,exp:"Le slide differenziano i meccanismi: dolce e amaro coinvolgono proteine G; acido inattiva il canale del K⁺; salato fa entrare ioni Na⁺ depolarizzando. È una distinzione strutturale fondamentale tra recettori metabotropici (G-coupled) e meccanismi diretti su canali ionici."},
+      {n:152,type:"vf",q:"Poiché molte sostanze pericolose hanno gusto amaro e l'amaro ha tempo di latenza più lungo (~2 s), è ragionevole pensare che il sistema gustativo sia evoluto per dare un segnale tardivo ma robusto, in modo da avere tempo per integrare l'informazione e rifiutare cibi potenzialmente tossici.",correct:true,exp:"L'osservazione integra due dati delle slide: l'amaro ha tempo di latenza più lungo (~2 s) e molte sostanze pericolose hanno gusto amaro. Una latenza più lunga consente al sistema di integrare segnali e «decidere» se rifiutare il cibo."},
+      {n:153,type:"mc",q:"Un degustatore di olio EVO valuta il piccante. Quale famiglia di recettori viene attivata, e quale è il principio fisiologico in comune con il consumo di peperoncino?",opts:["I bottoni gustativi delle papille fungiformi.","I nocicettori: sia la capsaicina del peperoncino sia (in misura minore) i polifenoli dell'EVO attivano i recettori del dolore, dando la sensazione di «piccante» — la stessa categoria del sistema somestesico chimico.","I meccanorecettori della lingua.","I bulbi terminali di Krause."],correct:1,exp:"Il piccante attiva i nocicettori (recettori del dolore) e non i bottoni gustativi: capsaicina e simili stimolano la stessa via dei polifenoli pungenti dell'EVO, classificata nel sistema somestesico chimico."},
+      {n:154,type:"mc",q:"Una persona si lamenta che dopo aver mangiato per giorni cibi molto piccanti percepisce «meno bene» i sapori delicati. Quale lettura è più coerente con il sistema descritto?",opts:["È una variazione fisiologica dei chemorecettori che si adattano allo stimolo intenso ripetuto, riducendo la sensibilità relativa per stimoli più deboli; gli stimoli intensi del piccante (nocicettori) sovrastano la percezione delle sensazioni più sottili.","Il piccante distrugge i bottoni gustativi.","Solo l'olfatto può recuperare la sensibilità persa.","È un'allucinazione gustativa permanente."],correct:0,exp:"L'esposizione cronica a stimoli intensi può ridurre la sensibilità relativa per stimoli più deboli. È un fenomeno di adattamento dei chemorecettori e di soppressione cognitiva."},
+      {n:155,type:"mc",q:"Nel Prisma di Hennig, dove collocheresti il sentore di «caffè tostato»?",opts:["Famiglia floreale.","Famiglia putrida.","Famiglia empireumatica (cottura).","Famiglia balsamica."],correct:2,exp:"Empireumatico (dal greco «pirus», cottura) è la famiglia che raccoglie i sentori derivati da cottura, tostatura, affumicatura — il caffè tostato è un classico esempio."},
+      {n:156,type:"mc",q:"Un descrittore di vino menziona «sentori di sottobosco e resina di pino». Nel Prisma di Hennig queste note rientrerebbero nella famiglia:",opts:["Speziata.","Empireumatica.","Balsamica (resinoso vegetale).","Putrida."],correct:2,exp:"La famiglia balsamica del Prisma di Hennig è descritta come «resinoso vegetale»: include sentori di resina, sottobosco, agrumi resinosi, eucalipto."},
+      {n:157,type:"vf",q:"Poiché l'olfatto contribuisce sia per via ortonasale (naso) sia per via retronasale (durante la masticazione), un raffreddore — che blocca l'epitelio olfattivo — riduce non solo la percezione degli odori esterni ma anche quella degli aromi durante il consumo del cibo, lasciando intatti solo i 4-5 sapori di base.",correct:true,exp:"Le slide spiegano che la percezione globale degli alimenti dipende massicciamente dall'olfatto (ortonasale + retronasale). Bloccando l'epitelio olfattivo (raffreddore), restano percepibili solo i sapori di base e le sensazioni somestesiche."},
+    ]
+  },
+  {
+    title: "Parmigiano: Diagnosi di Processo",
+    subtitle: "Capitolo 6 (Avanzato) — Relazioni causa-effetto nella tecnologia casearia",
+    advanced: true,
+    qs: [
+      {n:158,type:"mc",q:"Per un Parmigiano da 36 mesi, perché la combinazione «latte della sera affiorato + latte del mattino intero» è tecnicamente coerente con il prodotto finale?",opts:["Riduce semplicemente i costi di produzione.","Permette di equilibrare il rapporto grasso/proteine: troppa panna allungherebbe la coagulazione e renderebbe la pasta più morbida; troppa magrezza darebbe un formaggio asciutto e privo di aromi. La parziale scrematura della sera è funzionale a un formaggio a pasta dura, capace di lunga stagionatura.","È una scelta puramente storica, senza giustificazione tecnica.","Permette di pastorizzare metà del latte."],correct:1,exp:"La parziale scrematura del latte della sera (per affioramento) bilancia il rapporto grasso/proteine. Un eccesso di grasso produrrebbe pasta morbida e instabile; un eccesso di scrematura darebbe un formaggio asciutto. La pratica tradizionale è quindi tecnicamente coerente con un prodotto a pasta dura destinato a 12-36+ mesi."},
+      {n:159,type:"mc",q:"Le caldaie di rame creano «competizione batterica». Perché questa caratteristica è tecnicamente coerente con un formaggio prodotto da latte crudo?",opts:["Il rame uccide tutti i batteri, sostituendo la pastorizzazione.","Il latte crudo contiene una microflora variabile e potenzialmente sbilanciata; il rame, attraverso il rilascio di ioni in tracce, esercita una pressione selettiva che limita microrganismi indesiderati e favorisce i batteri lattici «buoni» del siero-innesto, fungendo da regolatore senza eliminare la flora utile.","Il rame aggiunge un sapore metallico al formaggio.","È una scelta puramente estetica."],correct:1,exp:"Le slide spiegano che il rame «serve a creare competizione batterica». Il rame in tracce inibisce alcuni microrganismi indesiderati senza distruggere la flora utile del siero-innesto, fungendo da regolatore selettivo: scelta sensata in un latte crudo non pastorizzato."},
+      {n:160,type:"mc",q:"Cosa accadrebbe se la rottura della cagliata fosse più grossolana, fino a granuli grandi come noci anziché chicchi di riso?",opts:["Si otterrebbe un Parmigiano di migliore qualità, perché meno lavorato.","Si avrebbe minore espulsione del siero, dunque maggiore ritenzione di acqua nella massa caseosa: il formaggio risulterebbe più morbido, meno adatto alla lunga stagionatura — è il principio di base che differenzia formaggi a pasta dura dai formaggi a pasta molle.","Aumenterebbe la coagulazione iniziale.","La temperatura di cottura della cagliata si abbasserebbe automaticamente."],correct:1,exp:"Le slide affermano: «Più la rottura è fine, maggiore è l'espulsione del siero — fondamentale per un formaggio a pasta dura». Una rottura grossolana invertirebbe il principio: maggiore acqua trattenuta → pasta più morbida → formaggio non adatto alla lunga stagionatura."},
+      {n:161,type:"vf",q:"Il fatto che il siero-innesto sia uno «scarto del giorno prima» realizza tecnicamente una continuità microbica: ogni caldaia eredita i batteri lattici della precedente, mantenendo nel tempo una identità microbiologica del singolo caseificio — concetto coerente con il legame territoriale del DOP.",correct:true,exp:"Il siero-innesto naturale ottenuto come scarto del giorno prima realizza una catena microbica continua nel tempo, propria del singolo caseificio. È esattamente il tipo di legame microbico-territoriale che fonda concettualmente le DOP."},
+      {n:162,type:"mc",q:"Negli assaggi sono stati confrontati Parmigiano 24 mesi prodotti da frisona, bruna alpina, vacca bianca e vacca rossa. Perché ha senso, dal punto di vista tecnologico, fare questo confronto?",opts:["Per mostrare che il latte di razze diverse ha composizione differente (proteine, grassi, caseine, β-caroteni), e quindi anche a parità di lavorazione e stagionatura il profilo organolettico finale può variare sensibilmente — confronto utile per allenare il panel.","Per dimostrare che le razze non incidono sul prodotto finale.","Perché ogni razza richiede un disciplinare diverso.","Per valutare la dieta degli animali invece che il latte."],correct:0,exp:"Razze diverse hanno latte con composizione diversa: percentuali di grassi, caseine, β-caroteni e profilo aromatico variabili. A parità di lavorazione e stagionatura, il prodotto finale può differire significativamente: confronto eccellente per allenare il palato."},
+      {n:163,type:"mc",q:"Una forma di Parmigiano, al controllo dei 12 mesi, riceve il marchio «mezzano». Cosa puoi dedurre dal punto di vista tecnico?",opts:["Il formaggio è scaduto.","La forma presenta difetti che impediscono l'attribuzione del marchio a fuoco di Parmigiano Reggiano DOP, ma rimane commercializzabile in declassamento; tipicamente difetti di occhiatura, gusto o struttura. È il sistema di tutela qualitativa interno al consorzio.","Il formaggio è stato pastorizzato, contro il disciplinare.","È stato prodotto fuori dalle province autorizzate."],correct:1,exp:"Il marchio «mezzano» indica una forma con difetti che impediscono l'attribuzione del marchio a fuoco DOP. Tipicamente difetti di occhiatura, sapore, struttura. È il sistema di tutela del consorzio: declassamento commerciale."},
+      {n:164,type:"mc",q:"La salamoia avviene per 18-20 giorni, in soluzione satura 1,3%. Perché è importante che il sale penetri «lentamente» piuttosto che salare la cagliata in fase di lavorazione?",opts:["Per ridurre i costi di trasporto.","La penetrazione lenta del sale realizza una salatura graduale e omogenea della pasta, evita inibizioni precoci dei batteri lattici (necessari nelle prime fasi della stagionatura) e contribuisce a una corretta formazione della crosta — funzioni che sarebbero compromesse da una salatura nell'impasto.","Per ridurre l'acidità del latte.","Per favorire la pastorizzazione."],correct:1,exp:"La salatura per immersione lenta evita inibizioni precoci dei batteri lattici, garantisce omogeneità della distribuzione del sale nella forma, e contribuisce alla formazione della crosta come barriera."},
+    ]
+  },
+  {
+    title: "Aceto Balsamico: Ragionamento e Confronto",
+    subtitle: "Capitolo 7 (Avanzato) — Confronti normativi e logica del processo",
+    advanced: true,
+    qs: [
+      {n:165,type:"mc",q:"Confrontando le tre tipologie principali, ti viene chiesto di stabilire la differenza fondamentale tra il Tradizionale DOP e l'IGP. Quale formulazione è più precisa?",opts:["Solo la zona di produzione: il DOP è di Modena, l'IGP è italiano in generale.","È una differenza di natura storica e disciplinare: il DOP risponde a una tradizione antica con vincoli rigorosi (saba come materia prima, batteria di botti, minimo 12 anni, bottiglia Giugiaro 100 ml, parametri molto stringenti); l'IGP nasce nel 2009 come risposta alla domanda commerciale, con disciplinare più snello.","Solo il prezzo: il DOP costa di più.","Solo la presenza del caramello."],correct:1,exp:"Le slide indicano due differenze fondamentali: (i) storica — DOP tradizione antica, IGP risposta commerciale del 2009; (ii) disciplinare — DOP basato su saba e batteria di botti per ≥ 12 anni con parametri stringenti (densità 1,24, acidità ≥ 4,5%); IGP basato su miscela con tempi ridotti e parametri più permissivi."},
+      {n:166,type:"mc",q:"Le botti della batteria sono «vecchie, spesso provenienti dal vino». Perché questo è un requisito tecnicamente sensato e non una semplice scelta tradizionale?",opts:["Perché le botti nuove sono più costose.","Le botti vecchie cedono meno tannini e aromi propri del legno, lasciando emergere il profilo del prodotto; inoltre la microporosità ormai stabilizzata favorisce gli scambi gas-liquido necessari all'evaporazione e all'ossidazione lenta che caratterizzano il balsamico, senza «coprire» con aromi di legno fresco.","Perché solo le botti vecchie possono ospitare batteri acetici.","Perché le botti nuove sono ermeticamente chiuse."],correct:1,exp:"Le botti vecchie hanno già ceduto buona parte dei tannini e degli aromi propri del legno, evitando di «coprire» il prodotto. La microporosità stabilizzata permette gli scambi gas-liquido necessari per evaporazione e ossidazione lenta."},
+      {n:167,type:"mc",q:"Le botti della batteria NON vengono chiuse ermeticamente. Perché questa è una scelta tecnica fondamentale e non un'imprecisione?",opts:["Per ridurre i costi di produzione.","L'apertura permette l'evaporazione naturale (10% all'anno), che concentra il prodotto, e l'ingresso di ossigeno necessario ai batteri acetici per trasformare gli zuccheri/etanolo in acido acetico: chiudere ermeticamente bloccherebbe sia la concentrazione sia la fermentazione acetica.","Per facilitare l'ispezione visiva.","Per evitare il deterioramento del legno."],correct:1,exp:"L'apertura permette l'evaporazione naturale (10%/anno), che concentra il prodotto, e l'ingresso di ossigeno necessario ai batteri acetici. Chiusura ermetica → niente evaporazione → niente concentrazione; niente ossigeno → niente fermentazione acetica."},
+      {n:168,type:"mc",q:"Spiega perché il sistema di rincalzo «dalla botte più piccola con la successiva, fino a ricolmare l'ultima con mosto cotto nuovo» non è semplicemente un metodo di riempimento ma un meccanismo di affinamento.",opts:["È un metodo di riempimento, niente di più.","Realizza una stratificazione di età: la botte più piccola contiene il prodotto più vecchio e concentrato, mentre il mosto giovane entra solo nell'ultima; ogni anno il prodotto «scivola» di una posizione, garantendo che ogni bottiglia imbottigliata dalla botte piccola contenga sempre tracce di tutte le annate precedenti — è un sistema simile al «solera» dello sherry.","Serve per pulire le botti.","Inverte la composizione tra mosto e aceto."],correct:1,exp:"Il sistema descritto realizza una stratificazione di età analoga al «solera» dello sherry: la botte più piccola contiene il prodotto più maturo e concentrato, l'ultima la materia prima fresca. Ogni anno il prodotto «scivola» di una posizione."},
+      {n:169,type:"vf",q:"Considerando che la batteria può avere da 3 a 7 botti e la durata minima del ciclo è 12 anni, una batteria di 3 botti rappresenta il limite minimo del sistema di stratificazione descritto, mentre 7 botti permettono una progressione molto più graduale e maggiore complessità del prodotto finale.",correct:true,exp:"Una batteria di 3 botti rappresenta lo schema minimo di stratificazione (almeno tre stadi: ricolmo iniziale, intermedio, prelievo finale). 7 botti permettono una progressione molto più graduale, con ogni stadio che apporta un contributo aromatico distinto."},
+      {n:170,type:"mc",q:"Confronta il prezzo del Tradizionale di Modena DOP (900-1200 €/L) con quello dell'IGP (qualche euro al litro per le versioni base). Quale ragionamento spiega meglio il divario?",opts:["Il DOP usa uve più costose.","Il divario riflette: la produzione molto limitata (~320-330 mila bottiglie/anno per Modena, ~160 mila per Reggio); il tempo (≥ 12 anni, contro 60 giorni o 3 anni); l'evaporazione (10% annuo per molti anni); la materia prima (saba, non aceto di vino + mosto); la batteria di botti che richiede investimento generazionale.","Solo la bottiglia di Giugiaro giustifica il prezzo.","Le uve del Tradizionale sono biologiche obbligatoriamente."],correct:1,exp:"Il divario di prezzo riflette economia totalmente diversa: produzione molto limitata, ciclo di ≥ 12 anni con perdita del 10% annuo per evaporazione, materia prima nobile (saba), investimento generazionale nella batteria."},
+      {n:171,type:"mc",q:"Negli assaggi vengono proposti, in sequenza, saba pura → balsamico DOP giovane → extravecchio Giusti → ABTM con anni crescenti. Quale è la logica didattica di questa progressione?",opts:["Andare dal più dolce al più acido in modo casuale.","Mostrare l'evoluzione del prodotto lungo la sua filiera: dalla materia prima (saba) attraverso le diverse durate di affinamento, per capire come tempo, evaporazione e botti modificano dolcezza, acidità, densità e complessità aromatica.","Confrontare prodotti di consorzi diversi.","Verificare la presenza di caramello aggiunto."],correct:1,exp:"La sequenza degli assaggi attraversa la filiera del prodotto: saba (materia prima base) → balsamico giovane → extravecchi di durata crescente. Permette di osservare empiricamente come tempo, evaporazione e batteria modifichino dolcezza, acidità, densità, complessità."},
+      {n:172,type:"mc",q:"Un produttore di IGP usa mosto concentrato anziché mosto cotto. Quale è la motivazione industriale implicita e quale concessione normativa lo accompagna?",opts:["Il mosto concentrato è più aromatico.","Il mosto concentrato è ottenuto industrialmente per esigenze di colore e standardizzazione produttiva; come compensazione (che riconosce questa minore «naturalità»), il disciplinare ammette fino al 2% di caramello — concessione che NON è invece prevista per il Tradizionale DOP.","Il mosto concentrato è obbligatorio per legge.","Costa più del mosto cotto."],correct:1,exp:"Il mosto concentrato è un prodotto industriale (per esigenze di colore e standardizzazione); il disciplinare IGP ammette una compensazione: 2% di caramello quando si usa concentrato. Il DOP, vincolato alla saba e alla tradizione, non concede questa flessibilità."},
+      {n:173,type:"mc",q:"Acidità: per il Tradizionale DOP è ≥ 4,5%, per l'IGP «mezzo balsamico» è 6%. Considerando che il DOP subisce 12+ anni di affinamento mentre l'IGP base anche solo 60 giorni, come spieghi che l'IGP abbia acidità MAGGIORE del DOP?",opts:["È un errore del disciplinare.","Nell'IGP la fonte principale di acidità è l'aceto di vino aggiunto direttamente alla ricetta (almeno 10%), che è già acido al momento della miscelazione; nel DOP l'acidità si sviluppa per fermentazione lenta dei batteri acetici nelle botti, partendo dalla saba zuccherina, e rimane per disciplinare a livelli più contenuti perché il prodotto finale punta su equilibrio dolce-acido.","Solo l'IGP usa acido acetico sintetico.","Sono due parametri non confrontabili."],correct:1,exp:"Apparente paradosso. Spiegazione: l'IGP usa direttamente aceto di vino già acido nella ricetta (almeno 10% + 10% di aceto madre), che porta acidità immediata. Il DOP sviluppa acidità più lenta e contenuta tramite fermentazione acetica della saba zuccherina."},
+      {n:174,type:"mc",q:"La densità del Tradizionale DOP a 20°C è 1,24, mentre per il «mezzo balsamico» IGP è 1,06. Cosa dice tecnicamente questa differenza?",opts:["Il DOP è acquoso.","La densità riflette la concentrazione di solidi solubili (zuccheri residui, polifenoli, composti complessi sviluppati negli anni di affinamento): 1,24 indica un prodotto sciropposo e molto concentrato, mentre 1,06 indica un prodotto fluido, più diluito — coerente con l'evaporazione del 10%/anno tipica del DOP.","È solo una differenza di colore.","È una caratteristica del legno delle botti."],correct:1,exp:"Densità = misura di solidi solubili. 1,24 indica un prodotto sciropposo, denso, molto concentrato dopo molti anni di evaporazione (10%/anno). 1,06 è un valore vicino a quello dell'acqua, indicativo di prodotto fluido."},
+    ]
+  },
+  {
+    title: "Olio EVO: Diagnosi e Casi Pratici",
+    subtitle: "Capitolo 8 (Avanzato) — Normativa, qualità, diagnosi di difetti",
+    advanced: true,
+    qs: [
+      {n:175,type:"mc",q:"Un produttore raccoglie le olive il 15 ottobre, le porta in frantoio il 20 ottobre. Tutto il resto è a norma (spremitura a 25°C, processi meccanici, acidità 0,5%). L'olio può essere chiamato EVO?",opts:["Sì, perché tutti gli altri requisiti sono rispettati.","No: la lavorazione deve avvenire entro 48 ore dalla raccolta. 5 giorni superano largamente questo limite, per cui il prodotto NON può fregiarsi della denominazione «extravergine», anche se altri parametri sono in regola.","Sì, ma solo se l'acidità scende sotto 0,3%.","Solo se le olive sono raccolte a mano."],correct:1,exp:"La normativa è esplicita: lavorazione entro 48 ore dalla raccolta. 5 giorni superano il limite; il prodotto non può essere chiamato EVO indipendentemente dagli altri parametri."},
+      {n:176,type:"mc",q:"Un olio raccolto da olive con acidità di partenza dello 0,7% viene perfettamente lavorato. È più probabile che il prodotto finale sia:",opts:["Un EVO di altissima qualità con polifenoli abbondanti.","Un EVO conforme al limite legale (≤ 0,8%) ma di qualità mediocre, con minor quantità di polifenoli rispetto a oli prodotti da olive raccolte a 0,2-0,3%; l'acidità di partenza è un proxy della qualità complessiva: olive raccolte più presto e in migliori condizioni hanno acidità più bassa e più polifenoli.","Un olio lampante non commestibile.","Un olio vergine, non EVO."],correct:1,exp:"Acidità di partenza è un proxy della qualità complessiva del frutto. 0,7% è dentro il limite legale (≤ 0,8% per EVO) ma vicino al margine: indica olive raccolte tardi o in condizioni subottimali, con minor contenuto di polifenoli."},
+      {n:177,type:"vf",q:"Un EVO che presenta un forte difetto di rancido viene per legge declassato a olio vergine di oliva, ma se il difetto fosse ancora più grave (per es. ossidazione molto avanzata) potrebbe essere dirottato verso le successive raffinazioni della filiera (olio d'oliva, olio raffinato, fino al lampante non commestibile).",correct:true,exp:"La filiera di declassamento è sequenziale: EVO → vergine (per difetti); spremiture successive con solventi danno olio d'oliva, raffinato, fino al lampante non commestibile."},
+      {n:178,type:"mc",q:"Un degustatore di EVO descrive la sensazione «pungente» avvertita in fondo alla gola. Da cosa dipende e perché è considerata una caratteristica POSITIVA?",opts:["Da un eccesso di acidità libera, segno di olio difettoso.","Dai polifenoli, classe di antiossidanti naturali; la pungenza/piccantezza è un indicatore della loro abbondanza, e quindi della qualità dell'olio (sia in termini di shelf-life sia in termini nutrizionali). Per questo è classificata tra le caratteristiche positive insieme a fruttato e amaro.","Da residui di lavorazione meccanica.","Da anidride carbonica intrappolata."],correct:1,exp:"I polifenoli sono antiossidanti naturali; la loro presenza dà la pungenza/piccantezza in gola e contribuisce a stabilità ossidativa e benefici nutrizionali. Per questo le slide la classificano come caratteristica positiva, insieme a fruttato e amaro."},
+      {n:179,type:"mc",q:"Un produttore vorrebbe vendere il suo olio non filtrato come «più genuino». Quale obiezione tecnica gli faresti?",opts:["L'olio non filtrato è illegale.","L'olio non filtrato è più aromatico ma meno stabile: i residui solidi in sospensione favoriscono fenomeni ossidativi e fermentativi, abbreviando la durata. Non è «più genuino», ma piuttosto un prodotto da consumare rapidamente; come scelta commerciale è valida solo per produzioni a rotazione veloce.","L'olio non filtrato non ha caratteristiche aromatiche.","L'olio non filtrato è obbligatoriamente lampante."],correct:1,exp:"L'olio non filtrato è effettivamente più aromatico ma meno stabile: i residui solidi accelerano fenomeni ossidativi e fermentativi. Non è «più genuino» nel senso oggettivo: è una scelta che privilegia il profilo aromatico immediato a scapito della shelf-life."},
+      {n:180,type:"mc",q:"Hai dimenticato una bottiglia di EVO di alta qualità sul davanzale di una finestra esposta al sole per 6 mesi. Cosa è verosimilmente successo?",opts:["Niente, l'olio si conserva meglio alla luce.","L'olio teme luce, aria e calore: l'esposizione luminosa e termica per mesi avrà avviato processi di ossidazione e «stancamento» (perdita di aromi). Anche se la durata legale è 18-24 mesi e quella ottimale 6-8, queste condizioni accelerano il decadimento ben oltre il normale invecchiamento.","L'olio si è tramutato spontaneamente in vergine.","È diventato lampante."],correct:1,exp:"L'olio teme luce, aria e calore: l'esposizione luminosa e termica per mesi avrà avviato processi di ossidazione e «stancamento» (perdita di aromi). Queste condizioni accelerano il decadimento ben oltre il normale invecchiamento."},
+      {n:181,type:"mc",q:"Confronta i metodi di estrazione: pressione (resa 20-30%), centrifuga (15-20%), percolatrice (8-10%). Quale lettura tecnica è più solida?",opts:["La pressione è il metodo migliore in assoluto perché ha la resa più alta.","Le rese non sono comparabili in modo lineare: la pressione (tradizionale, torchio) ottiene il «mosto d'olio» con resa percentuale alta in volume ma include parte dell'acqua di vegetazione; la centrifuga separa rapidamente dall'acqua con buona resa; la percolatrice ha resa minore ma estrae solo la parte grassa pura. La scelta dipende dal compromesso tra resa, qualità e infrastruttura.","La percolatrice è il metodo più diffuso.","La centrifuga è il metodo più antico."],correct:1,exp:"Le rese non sono comparabili in modo lineare: la pressione produce mosto d'olio che include parte di acqua; la centrifuga separa rapidamente; la percolatrice è selettiva su parte grassa pura. Ogni metodo ha trade-off."},
+      {n:182,type:"mc",q:"Perché la gramolatura va effettuata sotto i 27°C e non a temperature maggiori che pure favorirebbero una più rapida liberazione dell'olio?",opts:["Perché sopra 27°C l'olio prende fuoco.","Perché la spremitura «a freddo» (< 27°C) è un requisito legale per la denominazione EVO; inoltre temperature più alte degradano polifenoli e composti aromatici termolabili, riducendo la qualità e la shelf-life del prodotto, che proprio sui polifenoli costruisce il suo valore organolettico e nutrizionale.","Per ridurre i costi energetici.","Per impedire la crescita batterica."],correct:1,exp:"La spremitura «a freddo» (< 27°C) è un requisito legale per la denominazione EVO. Inoltre temperature più alte degradano polifenoli e composti aromatici termolabili, riducendo la qualità e la shelf-life."},
+      {n:183,type:"mc",q:"Le olive «modificate geneticamente» del modello spagnolo sono piccole. Perché questa caratteristica ha senso per la raccolta meccanica con scavallatrici, e quali sono i trade-off rispetto al modello italiano?",opts:["Le piante più piccole sono solo esteticamente più belle.","Olivi piccoli permettono il passaggio di scavallatrici e una raccolta industriale veloce e a basso costo; il trade-off è che un'agricoltura intensiva di questo tipo riduce la biodiversità varietale (l'Italia ha 450 cultivar, la Spagna ne usa pochissime su larga scala), e privilegia la quantità rispetto alla diversità organolettica e territoriale tipica del prodotto italiano.","Solo le piante piccole producono olive nere.","Le piante grandi producono olio più scadente."],correct:1,exp:"Olivi piccoli permettono il passaggio di scavallatrici e raccolta industriale veloce. Il trade-off: l'Italia ha 450 cultivar e una grande biodiversità; il modello spagnolo intensivo riduce drasticamente la diversità varietale e organolettica."},
+      {n:184,type:"mc",q:"Un EVO è descritto come «fruttato ma stanco». Cosa puoi dedurre tecnicamente?",opts:["È un olio appena prodotto.","È un olio che era partito buono (presenta ancora una nota fruttata residua), ma ha già iniziato il processo di perdita degli aromi, fenomeno descritto come «stanco»: tipicamente associato a invecchiamento, esposizione a luce/aria/calore, o conservazione subottimale. Probabile che si trovi nel limite o oltre la finestra ottimale dei 6-8 mesi.","Ha difetti di muffa.","Va declassato a lampante."],correct:1,exp:"Un olio «fruttato ma stanco» è un olio che era partito buono (residua nota fruttata) ma ha già iniziato il decadimento aromatico tipico dello «stancamento». Tipicamente associato a superamento della finestra ottimale dei 6-8 mesi o cattiva conservazione."},
+      {n:185,type:"vf",q:"Le DOP/IGP sull'olio sono più diffuse che sulle olive da tavola; questo non è casuale: l'olio è un prodotto trasformato con una catena di valore più lunga (e quindi più sensibile a tutele di filiera), mentre le olive da tavola sono un prodotto di consumo minore in volume e più intercambiabile a livello commerciale.",correct:true,exp:"L'olio è un prodotto con catena di valore lunga e quindi più sensibile alle tutele DOP/IGP che proteggono l'intero processo; le olive da tavola hanno minor volume di consumo e minore differenziazione di filiera."},
+      {n:186,type:"mc",q:"Negli assaggi sono presenti EVO di Lago di Garda, Liguria, Toscana, Umbria, Puglia, Sicilia. Perché ha senso assaggiarli in una sequenza che attraversi l'Italia da nord a sud?",opts:["Perché è esteticamente piacevole.","Perché clima, cultivar e tradizioni cambiano lungo la penisola: gli oli del nord (es. Garda) tendono a essere più delicati e fruttati leggeri, quelli del centro più erbacei e pungenti (Toscana), quelli del sud più intensi e maturi; la sequenza didattica permette di costruire un atlante sensoriale della biodiversità italiana (450 cultivar) e di allenare il palato a riconoscere terroir distinti.","Per dimostrare che gli oli del Nord sono superiori a quelli del Sud.","Perché la legge impone questa sequenza."],correct:1,exp:"Lungo l'Italia clima, cultivar e tradizioni cambiano: oli del nord tendono al fruttato leggero; del centro all'erbaceo pungente; del sud all'intenso e maturo. La sequenza didattica permette di costruire un atlante sensoriale della biodiversità italiana."},
+      {n:187,type:"mc",q:"Un produttore ti dice: «da quest'anno la mia produzione è dimezzata, eppure non ho cambiato nulla rispetto allo scorso anno, in cui era stata ottima». Cosa è plausibile sia successo?",opts:["Sicuramente la pianta è malata.","È molto probabilmente la produzione alternata (resa biennale): l'olivo, dopo un'annata abbondante che richiede molta energia al frutto, produce naturalmente meno l'anno successivo. È un fenomeno fisiologico normale, non un sintomo di patologia.","Si tratta di un attacco di mosca dell'olivo.","La cultivar è cambiata spontaneamente."],correct:1,exp:"La produzione alternata (resa biennale) è descritta esplicitamente: dopo un'annata abbondante, il frutto richiede molta energia alla pianta che produce naturalmente meno l'anno seguente. È un fenomeno fisiologico normale, non patologico."},
+    ]
+  }
+];
+
+const STORAGE_KEY = 'quiz_sensoriale_v1';
+let state = { answers: {}, marked: {} };
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+}
+function loadState() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) state = JSON.parse(s);
+  } catch(e){}
+}
+
+function buildQuiz() {
+  const main = document.getElementById('quiz-main');
+  main.innerHTML = '';
+  const labels = ['A','B','C','D'];
+
+  chapters.forEach((ch, ci) => {
+    const chDiv = document.createElement('div');
+    chDiv.className = 'chapter-section';
+
+    if (ch.sectionBreak) {
+      const totalBase = chapters.filter(c => !c.advanced).reduce((a,c) => a+c.qs.length, 0);
+      const totalAdv  = chapters.filter(c =>  c.advanced).reduce((a,c) => a+c.qs.length, 0);
+      chDiv.insertAdjacentHTML('beforeend', `
+        <div class="section-divider">
+          <div class="section-divider-banner">
+            <div class="adv-badge">⚡ Quiz Avanzato</div>
+            <div class="adv-title">Ragionamento, Analisi e Applicazione</div>
+            <div class="adv-subtitle">Questo quiz NON contiene domande di pura memorizzazione: richiede di ragionare sui meccanismi fisiologici, confrontare tecniche e prodotti, applicare le nozioni a casi pratici e diagnosticare errori. Tutte le opzioni errate sono plausibili — leggi attentamente.</div>
+            <div class="adv-stats">
+              <div class="adv-stat"><span class="adv-stat-num">${totalAdv}</span>&nbsp;domande avanzate</div>
+              <div class="adv-stat"><span class="adv-stat-num">4</span>&nbsp;capitoli</div>
+              <div class="adv-stat"><span class="adv-stat-num">${totalBase + totalAdv}</span>&nbsp;domande totali</div>
+            </div>
+          </div>
+        </div>`);
+    }
+
+    const isAdv = !!ch.advanced;
+    const lineClass = isAdv ? 'chapter-line adv' : 'chapter-line';
+    const labelClass = isAdv ? 'chapter-label adv' : 'chapter-label';
+    const capLabel = isAdv ? `Capitolo ${ci+1} — Avanzato` : `Capitolo ${ci+1}`;
+
+    chDiv.insertAdjacentHTML('beforeend', `
+      <div class="chapter-header">
+        <div class="${lineClass}"></div>
+        <div class="${labelClass}">${capLabel}</div>
+        <div class="${lineClass}"></div>
+      </div>
+      <h2 class="chapter-title">${ch.title}</h2>
+      <p class="chapter-subtitle">${ch.subtitle}</p>`);
+
+    ch.qs.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'question-card' + (isAdv ? ' adv-card' : '');
+      card.id = `q${q.n}`;
+
+      const ans = state.answers[q.n];
+      const isMarked = !!state.marked[q.n];
+      if (ans !== undefined) {
+        const isCorrect = (q.type === 'vf') ? (ans === q.correct) : (ans === q.correct);
+        card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+      }
+      if (isMarked) card.classList.add('marked');
+
+      const numClass = isAdv ? 'q-number adv' : 'q-number';
+      let innerHtml = `
+        <div class="q-meta">
+          <span class="${numClass}">Q${q.n}</span>
+          <span class="q-type-badge">${q.type === 'vf' ? 'Vero / Falso' : 'Scelta multipla'}</span>
+          ${ans !== undefined ? `<span class="answered-stamp ${ans===q.correct?'ok':'ko'}">${ans===q.correct?'✓ Corretto':'✗ Sbagliato'}</span>` : ''}
+          <button class="mark-btn ${isMarked?'active':''}" onclick="toggleMark(${q.n})" title="Segna per revisione">🔖</button>
+        </div>
+        <div class="q-text">${q.q}</div>`;
+
+      const isAnswered = ans !== undefined;
+
+      if (q.type === 'mc') {
+        innerHtml += `<div class="options">`;
+        q.opts.forEach((opt, oi) => {
+          let cls = '';
+          if (isAnswered) {
+            if (oi === q.correct) cls = 'correct';
+            else if (oi === ans) cls = 'wrong';
+          }
+          const icon = isAnswered ? (oi === q.correct ? ' <span class="opt-icon">✓</span>' : (oi === ans ? ' <span class="opt-icon">✗</span>' : '')) : '';
+          innerHtml += `<button class="option-btn ${cls}" ${isAnswered?'disabled':''} onclick="answer(${q.n},${oi})">
+            <span class="opt-letter">${labels[oi]}</span>
+            <span>${opt}</span>${icon}
+          </button>`;
+        });
+        innerHtml += `</div>`;
+      } else {
+        innerHtml += `<div class="vf-options">`;
+        [true, false].forEach(val => {
+          let cls = '';
+          if (isAnswered) {
+            if (val === q.correct) cls = 'correct';
+            else if (val === ans) cls = 'wrong';
+          }
+          innerHtml += `<button class="vf-btn ${cls}" ${isAnswered?'disabled':''} onclick="answer(${q.n},${val})">
+            ${val ? '✓ Vero' : '✗ Falso'}
+          </button>`;
+        });
+        innerHtml += `</div>`;
+      }
+
+      if (isAnswered) {
+        const isCorrect = ans === q.correct;
+        const correctLabel = q.type === 'vf'
+          ? (q.correct ? 'Vero' : 'Falso')
+          : `${labels[q.correct]}) ${q.opts[q.correct]}`;
+        innerHtml += `<div class="feedback ${isCorrect?'correct-fb':'wrong-fb'} show">
+          <strong>${isCorrect ? '✓ Risposta corretta!' : '✗ Risposta errata'}</strong>
+          ${!isCorrect ? `<span class="correct-answer">Risposta corretta: ${correctLabel}</span>` : ''}
+          ${q.exp}
+        </div>`;
+      } else {
+        innerHtml += `<div class="feedback" id="fb${q.n}"></div>`;
+      }
+
+      card.innerHTML = innerHtml;
+      chDiv.appendChild(card);
+    });
+
+    main.appendChild(chDiv);
+  });
+
+  updateProgress();
+}
+
+function answer(qn, val) {
+  const allQs = chapters.flatMap(c => c.qs);
+  const q = allQs.find(x => x.n === qn);
+  if (!q || state.answers[qn] !== undefined) return;
+
+  state.answers[qn] = val;
+  saveState();
+
+  const card = document.getElementById(`q${qn}`);
+  const isCorrect = val === q.correct;
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+  card.querySelectorAll('.option-btn, .vf-btn').forEach(btn => { btn.disabled = true; });
+
+  const labels = ['A','B','C','D'];
+  if (q.type === 'mc') {
+    card.querySelectorAll('.option-btn').forEach((btn, i) => {
+      if (i === q.correct) { btn.classList.add('correct'); btn.insertAdjacentHTML('beforeend','<span class="opt-icon">✓</span>'); }
+      else if (i === val) { btn.classList.add('wrong'); btn.insertAdjacentHTML('beforeend','<span class="opt-icon">✗</span>'); }
+    });
+  } else {
+    card.querySelectorAll('.vf-btn').forEach((btn, i) => {
+      const bval = i === 0;
+      if (bval === q.correct) btn.classList.add('correct');
+      else if (bval === val) btn.classList.add('wrong');
+    });
+  }
+
+  const correctLabel = q.type === 'vf' ? (q.correct ? 'Vero' : 'Falso') : `${labels[q.correct]}) ${q.opts[q.correct]}`;
+  const fb = card.querySelector('.feedback');
+  if (fb) {
+    fb.className = `feedback ${isCorrect?'correct-fb':'wrong-fb'} show`;
+    fb.innerHTML = `<strong>${isCorrect ? '✓ Risposta corretta!' : '✗ Risposta errata'}</strong>
+      ${!isCorrect ? `<span class="correct-answer">Risposta corretta: ${correctLabel}</span>` : ''}
+      ${q.exp}`;
+  }
+
+  const meta = card.querySelector('.q-meta');
+  const existing = meta.querySelector('.answered-stamp');
+  if (existing) existing.remove();
+  const stamp = document.createElement('span');
+  stamp.className = `answered-stamp ${isCorrect?'ok':'ko'}`;
+  stamp.textContent = isCorrect ? '✓ Corretto' : '✗ Sbagliato';
+  const markBtn = meta.querySelector('.mark-btn');
+  meta.insertBefore(stamp, markBtn);
+
+  updateProgress();
+  showToast(isCorrect ? '✓ Corretto!' : '✗ Sbagliato');
+}
+
+function toggleMark(qn) {
+  if (state.marked[qn]) { delete state.marked[qn]; }
+  else { state.marked[qn] = true; }
+  saveState();
+  const btn = document.querySelector(`#q${qn} .mark-btn`);
+  const card = document.getElementById(`q${qn}`);
+  if (btn) btn.classList.toggle('active', !!state.marked[qn]);
+  if (card) card.classList.toggle('marked', !!state.marked[qn]);
+  showToast(state.marked[qn] ? '🔖 Segnata per revisione' : '🔖 Segnalazione rimossa');
+}
+
+function filterQuestions(type) {
+  const allQs = chapters.flatMap(c => c.qs);
+  document.querySelectorAll('.question-card').forEach(card => {
+    const qn = parseInt(card.id.replace('q',''));
+    const q = allQs.find(x => x.n === qn);
+    let show = true;
+    if (type === 'unanswered') show = state.answers[qn] === undefined;
+    else if (type === 'marked') show = !!state.marked[qn];
+    else if (type === 'wrong') show = state.answers[qn] !== undefined && state.answers[qn] !== q.correct;
+    card.classList.toggle('hidden', !show);
+  });
+  document.querySelectorAll('.chapter-section').forEach(sec => {
+    const cards = sec.querySelectorAll('.question-card');
+    const anyVisible = Array.from(cards).some(c => !c.classList.contains('hidden'));
+    sec.style.display = anyVisible ? '' : 'none';
+  });
+  const counts = {all:'tutte',unanswered:'da rispondere',marked:'segnate',wrong:'sbagliate'};
+  showToast(`Filtro: ${counts[type]}`);
+}
+
+function updateProgress() {
+  const allQs = chapters.flatMap(c => c.qs);
+  const total = allQs.length;
+  const answered = Object.keys(state.answers).length;
+  const correct = allQs.filter(q => state.answers[q.n] === q.correct).length;
+  document.getElementById('score-badge').textContent = `${correct} / ${answered}`;
+  document.getElementById('progress-bar').style.width = `${(answered/total)*100}%`;
+}
+
+function showResults() {
+  const allQs = chapters.flatMap(c => c.qs);
+  const total = allQs.length;
+  const answered = Object.keys(state.answers).length;
+  const correct = allQs.filter(q => state.answers[q.n] === q.correct).length;
+  const wrong = answered - correct;
+  const pct = answered > 0 ? Math.round((correct/answered)*100) : 0;
+
+  const emoji = pct >= 85 ? '🎉' : pct >= 65 ? '💪' : '📚';
+  const scoreClass = pct >= 85 ? 'good' : pct >= 65 ? 'ok' : '';
+  const msg = pct >= 85 ? 'Ottimo risultato!' : pct >= 65 ? 'Buon lavoro!' : 'Continua a studiare!';
+
+  const baseChaps = chapters.filter(c => !c.advanced);
+  const advChaps  = chapters.filter(c =>  c.advanced);
+
+  function chScore(ch) {
+    const c = ch.qs.filter(q => state.answers[q.n] === q.correct).length;
+    const a = ch.qs.filter(q => state.answers[q.n] !== undefined).length;
+    return `${c}/${a}`;
+  }
+
+  let html = `
+    <div class="results-emoji">${emoji}</div>
+    <div class="results-title">${msg}</div>
+    <div class="results-score-big ${scoreClass}">${pct}%</div>
+    <div class="results-sub">${correct} corrette su ${answered} risposte (${total - answered} non risposte)</div>
+    <div class="results-breakdown">
+      <div class="breakdown-item green"><span class="bi-num">${correct}</span><span class="bi-label">Corrette</span></div>
+      <div class="breakdown-item red"><span class="bi-num">${wrong}</span><span class="bi-label">Sbagliate</span></div>
+      <div class="breakdown-item yellow"><span class="bi-num">${total - answered}</span><span class="bi-label">Non risposte</span></div>
+      <div class="breakdown-item"><span class="bi-num">${total}</span><span class="bi-label">Totale</span></div>
+    </div>
+    <div class="results-section-label">Quiz Base — Capitoli 1–4</div>`;
+
+  baseChaps.forEach(ch => {
+    html += `<div class="results-chapter"><span>${ch.title}</span><span class="ch-score">${chScore(ch)}</span></div>`;
+  });
+
+  html += `<div class="results-section-label adv">⚡ Quiz Avanzato — Capitoli 5–8</div>`;
+  advChaps.forEach(ch => {
+    html += `<div class="results-chapter adv-chapter"><span>${ch.title}</span><span class="ch-score">${chScore(ch)}</span></div>`;
+  });
+
+  html += `<div class="results-actions">
+    <button class="res-btn secondary" onclick="document.getElementById('results-panel').classList.remove('show')">← Chiudi</button>
+    <button class="res-btn primary" onclick="confirmReset()">🔄 Ricomincia</button>
+  </div>`;
+
+  document.getElementById('results-box').innerHTML = html;
+  document.getElementById('results-panel').classList.add('show');
+}
+
+function confirmReset() {
+  if (confirm('Vuoi davvero ricominciare? Tutti i progressi verranno persi.')) {
+    state = { answers: {}, marked: {} };
+    saveState();
+    document.getElementById('results-panel').classList.remove('show');
+    buildQuiz();
+    showToast('🔄 Quiz riavviato!');
+  }
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+loadState();
+buildQuiz();
+</script>
+</body>
+</html>
